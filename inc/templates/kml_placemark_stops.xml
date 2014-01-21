@@ -1,0 +1,11 @@
+<Placemark>
+    <name><![CDATA[{stop_name}]]></name>
+    <styleUrl>#gtfs_feature</styleUrl>
+    <ExtendedData>
+        <SchemaData schemaUrl="#gtfs_stops">
+            <SimpleData name="stop_id">{stop_id}</SimpleData>
+            <SimpleData name="stop_name"><![CDATA[{stop_name}]]></SimpleData>
+        </SchemaData>
+    </ExtendedData>
+    <Point><coordinates>{coordinates}</coordinates></Point>
+</Placemark>

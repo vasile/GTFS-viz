@@ -1,0 +1,14 @@
+<Placemark>
+    <name>Shape {shape_id}</name>
+    <styleUrl>#gtfs_feature</styleUrl>
+    <ExtendedData>
+        <SchemaData schemaUrl="#gtfs_shapes">
+            <SimpleData name="shape_id">{shape_id}</SimpleData>
+        </SchemaData>
+    </ExtendedData>
+    <LineString>
+        <coordinates>
+            {coordinates}
+        </coordinates>
+    </LineString>
+</Placemark>
