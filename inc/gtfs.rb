@@ -48,9 +48,6 @@ class GTFS
     table_name = main_args['table_name']
     table_columns = main_args['table_config']['table_columns']
 
-    p lines
-    exit
-
     # More SQLite improvements here
     # http://stackoverflow.com/questions/1711631/how-do-i-improve-the-performance-of-sqlite
     db.transaction
