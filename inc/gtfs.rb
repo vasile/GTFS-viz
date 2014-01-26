@@ -118,7 +118,7 @@ class GTFS
         },
         'geometry' => {
           'type' => 'Point',
-          'coordinates' => [row['stop_lon'].to_f, row['stop_lat'].to_f]
+          'coordinates' => [row['stop_lon'].to_f.round(6), row['stop_lat'].to_f.round(6)]
         }
       }
 
