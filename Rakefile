@@ -6,9 +6,11 @@ require 'sqlite3'
 import 'inc/helpers.rb'
 import 'inc/gtfs.rb'
 
-PROJECT_NAME = 'france-paris-ratp'
-# GTFS_FOLDER = "#{Dir.pwd}/gtfs-data/usa-sf-muni"
-# GTFS_FOLDER = "#{Dir.pwd}/gtfs-data/canada-vancouver-translink"
+PROJECT_NAME = 'spain-madrid'
+# PROJECT_NAME = 'france-paris-ratp-BUS_38'
+# PROJECT_NAME = 'france-paris-ratp'
+# PROJECT_NAME = "usa-sf-muni"
+# PROJECT_NAME = "canada-vancouver-translink"
 
 
 GTFS_FOLDER = "#{Dir.pwd}/gtfs-data/#{PROJECT_NAME}"
@@ -58,7 +60,7 @@ namespace :parse do
     gtfs_file = "#{GTFS_FOLDER}/shapes.txt"
     Profiler.init("START GTFS shapes.txt conversion to GeoJSON, #{GTFS.gtfs_file_count_lines(gtfs_file)} lines")
     geojson = GTFS.parse_file(gtfs_file, 'shapes_to_geojson')
-    File.open("#{Dir.pwd}/tmp/gtfs_shapes.geojson", "w") {|f| f.write(JSON.pretty_generate(geojson)) }
+    File.open("#{TMP_PATH}/gtfs_shapes.geojson", "w") {|f| f.write(JSON.pretty_generate(geojson)) }
     Profiler.save('DONE shapes_2_geojson')
   end
 
@@ -67,7 +69,7 @@ namespace :parse do
     gtfs_file = "#{GTFS_FOLDER}/stops.txt"
     Profiler.init("START GTFS stops.txt conversion to GeoJSON, #{GTFS.gtfs_file_count_lines(gtfs_file)} lines")
     geojson = GTFS.parse_file(gtfs_file, 'stops_to_geojson')
-    File.open("#{Dir.pwd}/tmp/gtfs_stops.geojson", "w") {|f| f.write(JSON.pretty_generate(geojson)) }
+    File.open("#{TMP_PATH}/gtfs_stops.geojson", "w") {|f| f.write(JSON.pretty_generate(geojson)) }
     Profiler.save('DONE stops_2_geojson')
   end
 
@@ -85,7 +87,7 @@ namespace :parse do
     db = SQLite3::Database.open(GTFS_DB_PATH)
     db.results_as_hash = true
 
-    shapes_json = JSON.parse(File.open("#{Dir.pwd}/tmp/gtfs_shapes.json", "r").read)
+    shapes_json = JSON.parse(File.open("#{TMP_PATH}/gtfs_shapes.geojson", "r").read)
 
     debug_shape_id = nil
     # debug_shape_id = '110255'
@@ -265,7 +267,7 @@ namespace :parse do
       trip_found['ok'] = trip_ok
     end
     
-    File.open("#{Dir.pwd}/tmp/trips_shapes.json", "w") {|f| f.write(JSON.pretty_generate(trips)) }
+    File.open("#{TMP_PATH}/trips_shapes.json", "w") {|f| f.write(JSON.pretty_generate(trips)) }
     Profiler.save('DONE stops_interpolate')
   end
 
@@ -277,7 +279,7 @@ namespace :parse do
 
     Profiler.init('START stops_trips_update')
 
-    json_trips = JSON.parse(File.open("#{Dir.pwd}/tmp/trips_shapes.json", "r").read)
+    json_trips = JSON.parse(File.open("#{TMP_PATH}/trips_shapes.json", "r").read)
 
     db = SQLite3::Database.open(GTFS_DB_PATH)
     db.results_as_hash = true
