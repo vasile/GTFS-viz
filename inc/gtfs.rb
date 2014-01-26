@@ -1,8 +1,19 @@
 class GTFS
+  @db = nil
+  
   def self.init
-    db = SQLite3::Database.new(GTFS_DB_PATH)
+    self.db_init
     sql = File.open("#{GTFS_SQL_PATH}/gtfs_init.sql", "r").read
-    db.execute_batch(sql)
+    @db.execute_batch(sql)
+  end
+  
+  def self.db_init
+    if @db
+      return
+    end
+    
+    @db = SQLite3::Database.new(GTFS_DB_PATH)
+    @db.results_as_hash = true
   end
 
   def self.gtfs_file_count_lines(gtfs_file)
