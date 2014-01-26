@@ -1,0 +1,14 @@
+rake setup:init
+
+rake parse:shapes_2_geojson
+rake parse:stops_2_geojson
+rake parse:gtfs_2_kml
+
+rake parse:gtfs_2_sqlite
+
+rake parse:stops_interpolate
+
+rake parse:stops_trips_update
+
+rake project:deploy
+
