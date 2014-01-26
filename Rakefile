@@ -354,21 +354,3 @@ namespace :parse do
   end
 end
 
-# START EXPERIMENTAL STUFF BELOW
-
-namespace :topology do
-  desc "EXPERIMENTAL-TOPOLOGY: parse the routes"
-  task :parse_lines do
-    json = JSON.parse(File.open("#{Dir.pwd}/export/network_edges.json", "r").read)
-
-    features_new = []
-    json['features'].each do |f|
-      coordinates_signature = 
-
-      p f['geometry']['coordinates']
-      exit
-    end
-
-    exit
-  end
-end
