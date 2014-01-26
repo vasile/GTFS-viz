@@ -23,8 +23,8 @@ class GTFS
     headers = nil
     lines = []
     lines_total = 0
-    lines_max = 10000
-    IO.foreach(gtfs_file) do |line|
+    lines_max = 100000
+    IO.foreach(gtfs_file, :encoding => 'bom|utf-8') do |line|
       if headers.nil?
         headers = line.parse_csv
         next
