@@ -1,18 +1,5 @@
 tables:
-    agency:
-        required: yes
-        db: yes
-        table_columns:
-            - agency_id
-            - agency_name
-            - agency_url
-            - agency_timezone
-            - agency_lang
-            - agency_phone
-            - agency_fare_url
     calendar:
-        required: yes
-        db: yes
         table_columns:
             - service_id
             - monday
@@ -24,16 +11,7 @@ tables:
             - sunday
             - start_date
             - end_date
-    calendar_dates:
-        required: no
-        db: yes
-        table_columns:
-            - service_id
-            - date
-            - exception_type
     routes:
-        required: yes
-        db: yes
         table_columns:
             - route_id
             - agency_id
@@ -44,12 +22,7 @@ tables:
             - route_url
             - route_color
             - route_text_color
-    shapes:
-        required: yes
-        db: no
     stop_times:
-        required: yes
-        db: yes
         table_columns:
             - trip_id
             - arrival_time
@@ -61,8 +34,6 @@ tables:
             - drop_off_type
             - shape_dist_traveled
     stops:
-        required: yes
-        db: yes
         table_columns:
             - stop_id
             - stop_code
@@ -77,8 +48,6 @@ tables:
             - stop_timezone
             - wheelchair_boarding
     trips:
-        required: yes
-        db: yes
         table_columns:
             - route_id
             - service_id

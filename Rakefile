@@ -40,14 +40,10 @@ namespace :parse do
     config = YAML.load(File.open("#{Dir.pwd}/inc/gtfs_mapping.yml"))
     config['tables'].each do |table_name, table_config|
       gtfs_file = "#{GTFS_FOLDER}/#{table_name}.txt"
-      if table_config['required'] && ((File.exist? gtfs_file) == false)
+      if (File.exist? gtfs_file) == false
         print "ERROR: required GTFS table #{table_name} not found !\n"
         print "Expected file: #{gtfs_file}\n"
         exit
-      end
-
-      if table_config['db'] == false
-        next
       end
 
       Profiler.save("SQL INSERT #{table_name}, #{GTFS.gtfs_file_count_lines(gtfs_file)} records")
