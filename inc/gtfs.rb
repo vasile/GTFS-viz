@@ -172,5 +172,51 @@ class GTFS
     
     File.open("#{TMP_PATH}/gtfs_#{feature_name}.kml", "w") {|f| f.write(kml_content) }
   end
+  
+  def self.create_shapes_from_stops
+    self.db_init
+    
+    trips = []
+    shape_id = 1
+    
+    sql = 'SELECT trip_id FROM trips'
+    @db.execute(sql).each do |trip_row|
+      sql = 'SELECT stops.stop_id, stop_name, stop_lon, stop_lat, arrival_time, departure_time FROM stop_times, stops WHERE trip_id = ? AND stop_times.stop_id = stops.stop_id ORDER BY stop_sequence'
+      
+      stop_ids = []
 
+      db_stops = @db.execute(sql, trip_row['trip_id'])
+      db_stops.each do |row|
+        stop_ids.push(row['stop_id'])
+      end
+
+      trip_signature = stop_ids.join('_')
+      trip_found = trips.find{|t| t['signature'] == trip_signature}
+      if trip_found
+      else
+        shape_points = []
+        db_stops.each do |row|
+          shape_points.push({
+            'x' => row['stop_lon'].to_f.round(6),
+            'y' => row['stop_lat'].to_f.round(6),
+          })
+        end
+        
+        trip_found = {
+          'signature' => trip_signature,
+          'shape_id' => shape_id.to_s,
+          'shape_points' => shape_points
+        }
+        
+        shape_id += 1
+        
+        trips.push(trip_found)
+      end
+      
+      sql = 'UPDATE trips SET shape_id = ? WHERE trip_id = ?'
+      @db.execute(sql, trip_found['shape_id'], trip_row['trip_id'])
+    end
+    
+    return trips
+  end
 end
