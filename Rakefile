@@ -354,3 +354,19 @@ namespace :parse do
   end
 end
 
+namespace :project do
+  desc "PROJECT: copy the project files in the API folder"
+  task :deploy do
+    API_FOLDER = "#{Dir.pwd}/../../api"
+
+    API_GTFS_FOLDER = "#{API_FOLDER}/gtfs-data/#{PROJECT_NAME}"
+    sh "rm -rf #{API_GTFS_FOLDER} && mkdir #{API_GTFS_FOLDER}"
+    ["gtfs.db", "gtfs_shapes.geojson", "gtfs_stops.geojson"].each do |project_file|
+      sh "cp #{TMP_PATH}/#{project_file} #{API_GTFS_FOLDER}/#{project_file}"
+    end
+    
+    API_TMP_FOLDER = "#{API_FOLDER}/tmp/#{PROJECT_NAME}"
+    sh "rm -rf #{API_TMP_FOLDER} && mkdir #{API_TMP_FOLDER} && chmod 0777 #{API_TMP_FOLDER}"
+    sh "mkdir #{API_TMP_FOLDER}/cache && chmod 0777 #{API_TMP_FOLDER}/cache"
+  end
+end
