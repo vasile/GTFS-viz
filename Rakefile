@@ -5,13 +5,19 @@ require 'sqlite3'
 
 import 'inc/helpers.rb'
 import 'inc/gtfs.rb'
+import 'inc/ft.rb'
+
+ft_login_path = "#{Dir.pwd}/inc/ft_login.rb"
+if (File.exists? ft_login_path) == false
+  sh "cp #{Dir.pwd}/inc/templates/ft_login.template.rb #{ft_login_path}"
+end
+import ft_login_path
 
 PROJECT_NAME = 'spain-madrid'
 # PROJECT_NAME = 'france-paris-ratp-BUS_38'
 # PROJECT_NAME = 'france-paris-ratp'
 # PROJECT_NAME = "usa-sf-muni"
 # PROJECT_NAME = "canada-vancouver-translink"
-
 
 GTFS_FOLDER = "#{Dir.pwd}/gtfs-data/#{PROJECT_NAME}"
 TMP_PATH = "#{Dir.pwd}/tmp/#{PROJECT_NAME}"
@@ -368,5 +374,17 @@ namespace :project do
     API_TMP_FOLDER = "#{API_FOLDER}/tmp/#{PROJECT_NAME}"
     sh "rm -rf #{API_TMP_FOLDER} && mkdir #{API_TMP_FOLDER} && chmod 0777 #{API_TMP_FOLDER}"
     sh "mkdir #{API_TMP_FOLDER}/cache && chmod 0777 #{API_TMP_FOLDER}/cache"
+  end
+
+  desc "PROJECT: push to Fusion Tables (require Google account)"
+  task :update_fusiontables do
+    require 'fusion_tables'
+    Profiler.init('START Fusion Tables INSERTs')
+    
+    ["shapes", "stops"].each do |feature_name|
+      FusionTables.update(feature_name)
+    end
+
+    Profiler.save('DONE Fusion Tables INSERTs')
   end
 end

@@ -11,4 +11,4 @@ rake parse:stops_interpolate
 rake parse:stops_trips_update
 
 rake project:deploy
-
+rake project:update_fusiontables
