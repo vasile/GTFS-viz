@@ -20,42 +20,12 @@ class FusionTables
   end
   
   def self.update(feature_name)
+    ft_table = self.getTable(feature_name)
+
     geojson_file = "#{TMP_PATH}/gtfs_#{feature_name}.geojson"
     geojson = JSON.parse(File.open(geojson_file, "r").read)
 
     Profiler.save("Feature #{feature_name} - #{geojson['features'].length} rows")
-
-    ft_table_name = "gtfs_#{PROJECT_NAME}_#{feature_name}"
-    ft_table_name.gsub!('-', '_')
-
-    if ft_table_name.match(/^[a-z0-9_]+?$/i).nil?
-      print "FT Client can handle only letters, numbers and underscores for table name.\n"
-      exit
-    end
-
-    self.init
-    
-    ft_table = self.find_table(ft_table_name)
-    if ft_table.nil?
-      column_definitions = {
-        'shapes' => [
-          {:name => 'shape_id',   :type => 'string'},  
-          {:name => 'geometry',   :type => 'location'},
-        ],
-        'stops' => [
-          {:name => 'stop_id',    :type => 'string'},  
-          {:name => 'stop_name',  :type => 'string'},
-          {:name => 'geometry',   :type => 'location'},
-        ],
-      }
-
-      begin
-        ft_table = @ft.create_table(ft_table_name, column_definitions[feature_name])
-      rescue
-        # https://github.com/tokumine/fusion_tables/issues/19
-        ft_table = self.find_table(ft_table_name)
-      end
-    end
 
     ft_rows = []
     geojson['features'].each do |f|
@@ -93,5 +63,45 @@ class FusionTables
       sleep(1)
     end
 
+  end
+
+  def self.getTable(feature_name)
+    ft_table_name = "gtfs_#{PROJECT_NAME}_#{feature_name}"
+    ft_table_name.gsub!('-', '_')
+
+    if ft_table_name.match(/^[a-z0-9_]+?$/i).nil?
+      print "FT Client can handle only letters, numbers and underscores for table name.\n"
+      exit
+    end
+
+    self.init
+    
+    ft_table = self.find_table(ft_table_name)
+    if ft_table.nil?
+      column_definitions = {
+        'shapes' => [
+          {:name => 'shape_id',   :type => 'string'},  
+          {:name => 'geometry',   :type => 'location'},
+        ],
+        'stops' => [
+          {:name => 'stop_id',    :type => 'string'},  
+          {:name => 'stop_name',  :type => 'string'},
+          {:name => 'geometry',   :type => 'location'},
+        ],
+      }
+
+      begin
+        ft_table = @ft.create_table(ft_table_name, column_definitions[feature_name])
+      rescue
+        # https://github.com/tokumine/fusion_tables/issues/19
+        ft_table = self.find_table(ft_table_name)
+      end
+
+      # TODO - make the table public - http://screencast.com/t/Wq275qo2
+      print "Created #{ft_table_name}, make sure it's shared to public . Open the link below > Share\n"
+      print "https://www.google.com/fusiontables/DataSource?docid=#{ft_table.id}\n"
+    end
+
+    return ft_table
   end
 end

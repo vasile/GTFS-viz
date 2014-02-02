@@ -383,4 +383,18 @@ namespace :project do
 
     Profiler.save('DONE Fusion Tables INSERTs')
   end
+
+  desc "PROJECT: update project settings for Fusion Tables"
+  task :update_settings_ft do
+    map_js_config_file = "#{Dir.pwd}/../../static/js/config.js"
+    map_js_config = JSON.parse(File.open(map_js_config_file, "r").read)
+    
+    require 'fusion_tables'
+    ["shapes", "stops"].each do |feature_name|
+      ft_table = FusionTables.getTable(feature_name)
+      map_js_config["ft_layer_ids.gtfs_#{feature_name}"] = ft_table.id
+    end
+
+    File.open(map_js_config_file, "w") {|f| f.write(JSON.pretty_generate(map_js_config)) }
+  end
 end
