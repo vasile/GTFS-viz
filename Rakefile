@@ -418,6 +418,52 @@ namespace :project do
     File.open(map_js_config_file, "w") {|f| f.write(JSON.pretty_generate(map_js_config)) }
   end
 
+  desc "PROJECT: update project settings for routes (color, icons)"
+  task :update_settings_routes do
+    map_js_config_file = "#{Dir.pwd}/../../static/js/config.js"
+    map_js_config = JSON.parse(File.open(map_js_config_file, "r").read)
+
+    if map_js_config["routes"].nil?
+      map_js_config["routes"] = {}
+    end
+
+    routes = GTFS.getRoutesConfig()
+    routes.each do |route|
+      route_key = route['route_short_name']
+      if route_key.empty?
+        print "Skipping empty route #{route}\n"
+        next
+      end
+
+      project_icon_rel_path = "static/images/route_icons/#{route_key}.png"
+      project_icon_abs_path = "#{Dir.pwd}/../../#{project_icon_rel_path}"
+      config_icon = false
+      if File.exists? project_icon_abs_path
+        config_icon = project_icon_rel_path
+      else
+        sh_line = "php #{Dir.pwd}/../vehicle-icon/route_icon.php bg=#{route['route_color']} fg=#{route['route_text_color']} t=#{route_key}"
+        sh(sh_line)
+
+        tmp_file = "/tmp/route_icon_#{route_key}.png"
+        if File.exists? tmp_file
+          sh("mv #{tmp_file} #{project_icon_abs_path}")
+          config_icon = project_icon_rel_path
+        end
+      end
+      
+      if map_js_config["routes"][route_key].nil?
+        map_js_config["routes"][route_key] = {
+          'icon'              => config_icon,
+          'route_short_name'  => route['route_short_name'],
+          'route_color'       => route['route_color'],
+          'route_text_color'  => route['route_text_color'],
+        }        
+      end
+    end
+
+    File.open(map_js_config_file, "w") {|f| f.write(JSON.pretty_generate(map_js_config)) }
+  end
+
   desc "PROJECT: update project name"
   task :update_name do
     api_config_file = "#{Dir.pwd}/../../api/inc/config.json"
