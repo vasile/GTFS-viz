@@ -310,7 +310,7 @@ namespace :parse do
       sql = 'SELECT trip_id, shape_id FROM trips'
       trip_rows = db.execute(sql)
       trip_rows.each_with_index do |trip_row, k|
-        if k % 1000 == 0
+        if k % 10000 == 0
           Profiler.save("Trip #{k}/#{trip_rows.length}")
         end
 
