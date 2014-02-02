@@ -35,6 +35,7 @@ CREATE TABLE routes (
     route_text_color TEXT
 );
 CREATE INDEX agency_id ON routes(agency_id);
+CREATE INDEX route_short_name ON routes(route_short_name);
 
 CREATE TABLE trips (
     route_id TEXT,

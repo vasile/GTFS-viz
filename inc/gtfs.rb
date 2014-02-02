@@ -223,4 +223,11 @@ class GTFS
     
     return trips
   end
+
+  def self.getRoutesConfig
+    self.db_init
+    sql = 'SELECT DISTINCT route_short_name, route_color,route_text_color FROM routes'
+    routes = @db.execute(sql)
+    return routes
+  end
 end
