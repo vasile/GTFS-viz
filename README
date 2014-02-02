@@ -12,3 +12,8 @@ rake parse:stops_trips_update
 
 rake project:deploy
 rake project:update_fusiontables
+
+rake project:update_settings_ft
+rake project:update_settings_map
+rake project:update_settings_routes
+rake project:update_name
