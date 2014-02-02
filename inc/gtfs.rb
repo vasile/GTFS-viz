@@ -67,7 +67,11 @@ class GTFS
 
         row_values = []
         table_columns.each do |column|
-          row_values.push(row[column])
+          value = row[column]
+          if value.is_a? String
+            value.strip!
+          end
+          row_values.push(value)
         end
 
         sql = "INSERT INTO #{table_name} (#{table_columns.join(', ')}) VALUES (#{(["?"] * table_columns.length).join(', ')})"
