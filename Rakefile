@@ -373,7 +373,7 @@ namespace :project do
     
     API_TMP_FOLDER = "#{API_FOLDER}/tmp/#{PROJECT_NAME}"
     sh "rm -rf #{API_TMP_FOLDER} && mkdir #{API_TMP_FOLDER} && chmod 0777 #{API_TMP_FOLDER}"
-    sh "mkdir #{API_TMP_FOLDER}/cache && chmod 0777 #{API_TMP_FOLDER}/cache"
+    sh "mkdir -p #{API_TMP_FOLDER}/cache/db && chmod 0777 #{API_TMP_FOLDER}/cache/db"
   end
 
   desc "PROJECT: push to Fusion Tables (require Google account)"
