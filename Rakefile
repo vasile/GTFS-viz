@@ -397,4 +397,24 @@ namespace :project do
 
     File.open(map_js_config_file, "w") {|f| f.write(JSON.pretty_generate(map_js_config)) }
   end
+
+  desc "PROJECT: update project settings for map"
+  task :update_settings_map do
+    map_js_config_file = "#{Dir.pwd}/../../static/js/config.js"
+    map_js_config = JSON.parse(File.open(map_js_config_file, "r").read)
+    
+    sum_x = sum_y = 0
+    geojson = JSON.parse(File.open("#{TMP_PATH}/gtfs_stops.geojson", "r").read)
+    geojson['features'].each do |f|
+      sum_x += f['geometry']['coordinates'][0]
+      sum_y += f['geometry']['coordinates'][1]
+    end
+    center_x = sum_x / geojson['features'].length
+    center_y = sum_y / geojson['features'].length
+
+    map_js_config["center.x"] = center_x.round(6)
+    map_js_config["center.y"] = center_y.round(6)
+
+    File.open(map_js_config_file, "w") {|f| f.write(JSON.pretty_generate(map_js_config)) }
+  end
 end
