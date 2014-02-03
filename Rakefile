@@ -394,6 +394,10 @@ namespace :project do
   task :update_settings_ft do
     map_js_config_file = "#{Dir.pwd}/../../static/js/config.js"
     map_js_config = JSON.parse(File.open(map_js_config_file, "r").read)
+
+    map_js_config['ft_layer_ids.mask'] = nil
+    map_js_config['ft_layer_ids.topology_edges'] = nil
+    map_js_config['ft_layer_ids.topology_stations'] = nil
     
     require 'fusion_tables'
     ["shapes", "stops"].each do |feature_name|
@@ -408,6 +412,12 @@ namespace :project do
   task :update_settings_map do
     map_js_config_file = "#{Dir.pwd}/../../static/js/config.js"
     map_js_config = JSON.parse(File.open(map_js_config_file, "r").read)
+
+    map_js_config['api_paths.trips'] = 'api/getTrips/[hhmm]'
+    map_js_config['geojson.gtfs_shapes'] = 'api/geojson/gtfs_shapes.geojson'
+    map_js_config['geojson.gtfs_stops'] = 'api/geojson/gtfs_stops.geojson'
+    map_js_config['geojson.topology_edges'] = nil
+    map_js_config['geojson.topology_stations'] = nil
     
     sum_x = sum_y = 0
     geojson = JSON.parse(File.open("#{TMP_PATH}/gtfs_stops.geojson", "r").read)
