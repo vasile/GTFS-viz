@@ -427,6 +427,9 @@ namespace :project do
       map_js_config["routes"] = {}
     end
 
+    sh_line = "rm -f #{Dir.pwd}/../../static/images/route_icons/*.png"
+    sh sh_line
+
     routes = GTFS.getRoutesConfig()
     routes.each do |route|
       route_key = route['route_short_name']
