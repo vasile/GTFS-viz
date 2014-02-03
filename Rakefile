@@ -9,6 +9,12 @@ import 'inc/ft.rb'
 
 PROJECT_NAME = 'usa-san-francisco-muni'
 
+if Rake.application.options.show_tasks
+  print "=======================\n"
+  print "Project #{PROJECT_NAME}\n"
+  print "=======================\n\n"
+end
+
 ft_login_path = "#{Dir.pwd}/inc/ft_login.rb"
 if (File.exists? ft_login_path) == false
   sh "cp #{Dir.pwd}/inc/templates/ft_login.template.rb #{ft_login_path}"
