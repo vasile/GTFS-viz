@@ -13,6 +13,12 @@ if Rake.application.options.show_tasks
   print "=======================\n"
   print "Project #{PROJECT_NAME}\n"
   print "=======================\n\n"
+
+if PROJECT_NAME.match(/^[0-9a-z_-]*$/i).nil?
+  print "Invalid project name \"#{PROJECT_NAME}\" !\n"
+  print "Allowed characters: letters, digits, -, _\n"
+  exit
+end
 end
 
 ft_login_path = "#{Dir.pwd}/inc/ft_login.rb"
