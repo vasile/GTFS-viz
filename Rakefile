@@ -12,7 +12,8 @@ PROJECT_NAME = 'usa-san-francisco-muni'
 if Rake.application.options.show_tasks
   print "=======================\n"
   print "Project #{PROJECT_NAME}\n"
-  print "=======================\n\n"
+  print "=======================\n"
+end
 
 if PROJECT_NAME.match(/^[0-9a-z_-]*$/i).nil?
   print "Invalid project name \"#{PROJECT_NAME}\" !\n"
