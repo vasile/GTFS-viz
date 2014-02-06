@@ -20,6 +20,10 @@ if PROJECT_NAME.match(/^[0-9a-z_-]*$/i).nil?
   print "Allowed characters: letters, digits, -, _\n"
   exit
 end
+
+if !(File.exists? "#{Dir.pwd}/#{PROJECT_NAME}")
+  print "GTFS project folder not found \"#{Dir.pwd}/#{PROJECT_NAME}\" !\n"
+  exit
 end
 
 ft_login_path = "#{Dir.pwd}/inc/ft_login.rb"
