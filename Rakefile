@@ -513,7 +513,7 @@ namespace :project do
     routes = GTFS.getRoutesConfig()
     routes.each do |route|
       route_key = route['route_short_name']
-      if route_key.empty?
+      if route_key.nil? || route_key.empty?
         print "Skipping empty route #{route}\n"
         next
       end
