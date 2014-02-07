@@ -28,12 +28,12 @@ The following Rake Tasks sequence need to be executed.
 	cd /path/to/GTFS-viz
 
 	rake setup:init
-  
+
+	rake parse:gtfs_2_sqlite
+
 	rake parse:shapes_2_geojson
 	rake parse:stops_2_geojson
 	rake parse:gtfs_2_kml
-  
-	rake parse:gtfs_2_sqlite
   
 	rake parse:stops_interpolate
   
