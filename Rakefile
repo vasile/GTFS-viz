@@ -7,6 +7,7 @@ import 'inc/helpers.rb'
 import 'inc/gtfs.rb'
 import 'inc/ft.rb'
 
+# Allowed characters: letters, digits, -, _
 PROJECT_NAME = 'usa-san-francisco-muni'
 
 if Rake.application.options.show_tasks
@@ -21,8 +22,10 @@ if PROJECT_NAME.match(/^[0-9a-z_-]*$/i).nil?
   exit
 end
 
-if !(File.exists? "#{Dir.pwd}/#{PROJECT_NAME}")
-  print "GTFS project folder not found \"#{Dir.pwd}/#{PROJECT_NAME}\" !\n"
+GTFS_FOLDER = "#{Dir.pwd}/gtfs-data/#{PROJECT_NAME}"
+
+if !(File.exists? GTFS_FOLDER)
+  print "GTFS project folder not found \"GTFS_FOLDER\" !\n"
   exit
 end
 
@@ -32,7 +35,6 @@ if (File.exists? ft_login_path) == false
 end
 import ft_login_path
 
-GTFS_FOLDER = "#{Dir.pwd}/gtfs-data/#{PROJECT_NAME}"
 TMP_PATH = "#{Dir.pwd}/tmp/#{PROJECT_NAME}"
 GTFS_DB_PATH = "#{TMP_PATH}/gtfs.db"
 GTFS_SQL_PATH = "#{Dir.pwd}/inc/sql"
