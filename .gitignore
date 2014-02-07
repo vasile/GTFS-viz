@@ -1,3 +1,6 @@
+.DS_Store
+
 gtfs-data/*/*.txt
 tmp
+
 ft_login.rb
