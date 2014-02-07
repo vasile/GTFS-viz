@@ -48,7 +48,7 @@ namespace :setup do
   desc "SETUP: init"
   task :init do
     sh "rm -rf #{TMP_PATH}"
-    sh "mkdir #{TMP_PATH}"
+    sh "mkdir -p #{TMP_PATH}"
 
     GTFS.init
   end
