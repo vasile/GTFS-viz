@@ -160,6 +160,12 @@ namespace :parse do
         next
       end
 
+      if trip_row['shape_id'].nil?
+        print "ERROR: Empty shape_id for#{trip_row} !\n"
+        trip_found['ok'] = false
+        next
+      end
+
       shape_coords = shapes_json['features'].find{ |f| f['properties']['shape_id'] == trip_row['shape_id'] }
 
       if debug_shape_id
