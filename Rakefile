@@ -29,7 +29,7 @@ end
 GTFS_FOLDER = "#{Dir.pwd}/gtfs-data/#{PROJECT_NAME}"
 
 if !(File.exists? GTFS_FOLDER)
-  print "GTFS project folder not found \"GTFS_FOLDER\" !\n"
+  print "GTFS project folder not found \"#{GTFS_FOLDER}\" !\n"
   exit
 end
 
