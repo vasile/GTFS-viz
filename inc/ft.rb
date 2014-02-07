@@ -101,11 +101,11 @@ class FusionTables
         # https://github.com/tokumine/fusion_tables/issues/19
         ft_table = self.find_table(ft_table_name)
       end
-
-      # TODO - make the table public - http://screencast.com/t/Wq275qo2
-      print "Created #{ft_table_name}, make sure it's shared to public . Open the link below > Share\n"
-      print "https://www.google.com/fusiontables/DataSource?docid=#{ft_table.id}\n"
     end
+    
+    # TODO - make the table public - http://screencast.com/t/Wq275qo2
+    print "Make sure #{ft_table_name} it's shared to public . Open the link below > Share\n"
+    print "https://www.google.com/fusiontables/DataSource?docid=#{ft_table.id}\n"
 
     return ft_table
   end
