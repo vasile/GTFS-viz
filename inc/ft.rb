@@ -2,6 +2,11 @@ class FusionTables
   def self.init
     if @ft.nil?
       @ft = GData::Client::FusionTables.new
+      if FT_USERNAME == 'Google_Drive_Username'
+        print "Invalid FT_USERNAME, check inc/ft_login.rb\n"
+        print "ABORT\n"
+        exit
+      end
       @ft.clientlogin(FT_USERNAME, FT_PASSWORD)
       @ft.set_api_key(FT_KEY)
     end
