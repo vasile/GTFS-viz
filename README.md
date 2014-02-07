@@ -42,9 +42,9 @@ The following Rake Tasks sequence need to be executed.
 **TODO - add a detailed description about each task and execution times for SFMTA project.**
 
 Check the contents of ./PROJECT_NAME/ , you should have
-- gtfs.db, SQLite DB with calendar.txt, routes.txt, stop_times.txt, stops.txt, trips.txt
-- gtfs_shapes.geojson, gtfs_stops.geojson - GeoJSON files with shapes.txt, stops.txt
-- gtfs_shapes.kml, gtfs_stops.kml - KML (Google Earth) files with shapes.txt, stops.txt
+- gtfs.db, SQLite DB tables of calendar.txt, routes.txt, stop_times.txt, stops.txt, trips.txt
+- gtfs_shapes.geojson, gtfs_stops.geojson - GeoJSON files of shapes.txt, stops.txt
+- gtfs_shapes.kml, gtfs_stops.kml - KML (Google Earth) files of shapes.txt, stops.txt
 
 ## Visualize
 
