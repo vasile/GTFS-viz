@@ -1,6 +1,6 @@
 ## About
 
-This Ruby script is used to convert a set of [GTFS](https://developers.google.com/transit/gtfs/reference) files into a SQLite database + GeoJSONs needed by the [Transit Simulator](https://github.com/vasile/transit-simulator) web application that animates vehicles on a map based on timetables and network.
+This Ruby script is used to convert a set of [GTFS](https://developers.google.com/transit/gtfs/reference) files into a SQLite database + GeoJSONs needed by the [Transit Map](https://github.com/vasile/transit-map) web application that animates vehicles on a map based on timetables and network.
 
 The script was tested on OSX machines with Ruby 1.9.x
 
@@ -52,8 +52,8 @@ You can open the GeoJSON files with [QuantumGIS](https://www.qgis.org/en/site/fo
 
 If you want to create an animation of the GTFS data you will need to
 
-- download / clone the [Transit Simulator](https://github.com/vasile/transit-simulator) web application
-- download / clone the [Transit Route Icon](https://github.com/vasile/transit-simulator-route-icon) PHP script
+- download / clone the [Transit Map](https://github.com/vasile/transit-map) web application
+- download / clone the [Transit Map Route Icon](https://github.com/vasile/transit-map-route-icon) PHP script
 - edit Rakefile and change the PATH_TO_APP_TRANSIT_SIMULATOR, PATH_TO_SCRIPT_ROUTE_ICON constants
 - run the tasks below:
 	

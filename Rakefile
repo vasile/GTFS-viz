@@ -9,9 +9,9 @@ import 'inc/ft.rb'
 
 # Allowed characters: letters, digits, -, _
 PROJECT_NAME = 'usa-san-francisco-muni'
-# Path of the repo cloned/downloaded from https://github.com/vasile/transit-simulator
-PATH_TO_APP_TRANSIT_SIMULATOR = nil
-# Path of the repo cloned/downloaded from https://github.com/vasile/transit-simulator-route-icon
+# Path of the repo cloned/downloaded from https://github.com/vasile/transit-map
+PATH_TO_APP_TRANSIT_MAP = nil
+# Path of the repo cloned/downloaded from https://github.com/vasile/transit-map-route-icon
 PATH_TO_SCRIPT_ROUTE_ICON = nil
 
 if Rake.application.options.show_tasks
@@ -382,13 +382,13 @@ end
 namespace :project do
   desc "PROJECT: copy the project files in the API folder"
   task :deploy do
-    if PATH_TO_APP_TRANSIT_SIMULATOR.nil?
-      print "WARNING - invalid PATH_TO_APP_TRANSIT_SIMULATOR: #{PATH_TO_APP_TRANSIT_SIMULATOR} !\n"
+    if PATH_TO_APP_TRANSIT_MAP.nil?
+      print "WARNING - invalid PATH_TO_APP_TRANSIT_MAP: #{PATH_TO_APP_TRANSIT_MAP} !\n"
       print "ABORT\n"
       exit
     end
 
-    API_FOLDER = "#{PATH_TO_APP_TRANSIT_SIMULATOR}/api"
+    API_FOLDER = "#{PATH_TO_APP_TRANSIT_MAP}/api"
 
     API_GTFS_FOLDER = "#{API_FOLDER}/gtfs-data"
     sh "rm -rf #{API_GTFS_FOLDER} && mkdir #{API_GTFS_FOLDER}"
@@ -426,13 +426,13 @@ namespace :project do
 
   desc "PROJECT: update project settings for Fusion Tables"
   task :update_settings_ft do
-    if PATH_TO_APP_TRANSIT_SIMULATOR.nil?
-      print "WARNING - invalid PATH_TO_APP_TRANSIT_SIMULATOR: #{PATH_TO_APP_TRANSIT_SIMULATOR} !\n"
+    if PATH_TO_APP_TRANSIT_MAP.nil?
+      print "WARNING - invalid PATH_TO_APP_TRANSIT_MAP: #{PATH_TO_APP_TRANSIT_MAP} !\n"
       print "ABORT\n"
       exit
     end
 
-    map_js_config_file = "#{PATH_TO_APP_TRANSIT_SIMULATOR}/static/js/config.js"
+    map_js_config_file = "#{PATH_TO_APP_TRANSIT_MAP}/static/js/config.js"
     map_js_config = JSON.parse(File.open(map_js_config_file, "r").read)
 
     map_js_config['ft_layer_ids.mask'] = nil
@@ -450,13 +450,13 @@ namespace :project do
 
   desc "PROJECT: update project settings for map"
   task :update_settings_map do
-    if PATH_TO_APP_TRANSIT_SIMULATOR.nil?
-      print "WARNING - invalid PATH_TO_APP_TRANSIT_SIMULATOR: #{PATH_TO_APP_TRANSIT_SIMULATOR} !\n"
+    if PATH_TO_APP_TRANSIT_MAP.nil?
+      print "WARNING - invalid PATH_TO_APP_TRANSIT_MAP: #{PATH_TO_APP_TRANSIT_MAP} !\n"
       print "ABORT\n"
       exit
     end
 
-    map_js_config_file = "#{PATH_TO_APP_TRANSIT_SIMULATOR}/static/js/config.js"
+    map_js_config_file = "#{PATH_TO_APP_TRANSIT_MAP}/static/js/config.js"
     map_js_config = JSON.parse(File.open(map_js_config_file, "r").read)
 
     map_js_config['api_paths.trips'] = 'api/getTrips/[hhmm]'
@@ -482,8 +482,8 @@ namespace :project do
 
   desc "PROJECT: update project settings for routes (color, icons)"
   task :update_settings_routes do
-    if PATH_TO_APP_TRANSIT_SIMULATOR.nil?
-      print "WARNING - invalid PATH_TO_APP_TRANSIT_SIMULATOR: #{PATH_TO_APP_TRANSIT_SIMULATOR} !\n"
+    if PATH_TO_APP_TRANSIT_MAP.nil?
+      print "WARNING - invalid PATH_TO_APP_TRANSIT_MAP: #{PATH_TO_APP_TRANSIT_MAP} !\n"
       print "ABORT\n"
       exit
     end
@@ -492,7 +492,7 @@ namespace :project do
       print "NOTICE - invalid PATH_TO_SCRIPT_ROUTE_ICON: #{PATH_TO_SCRIPT_ROUTE_ICON} !\n"
     end
 
-    map_js_config_file = "#{PATH_TO_APP_TRANSIT_SIMULATOR}/static/js/config.js"
+    map_js_config_file = "#{PATH_TO_APP_TRANSIT_MAP}/static/js/config.js"
     map_js_config = JSON.parse(File.open(map_js_config_file, "r").read)
 
     if map_js_config["routes"].nil?
@@ -500,7 +500,7 @@ namespace :project do
     end
 
     if PATH_TO_SCRIPT_ROUTE_ICON
-      sh_line = "rm -f #{PATH_TO_APP_TRANSIT_SIMULATOR}/static/images/route_icons/*.png"
+      sh_line = "rm -f #{PATH_TO_APP_TRANSIT_MAP}/static/images/route_icons/*.png"
       sh sh_line
     end
 
@@ -513,7 +513,7 @@ namespace :project do
       end
 
       project_icon_rel_path = "static/images/route_icons/#{route_key}.png"
-      project_icon_abs_path = "#{PATH_TO_APP_TRANSIT_SIMULATOR}/#{project_icon_rel_path}"
+      project_icon_abs_path = "#{PATH_TO_APP_TRANSIT_MAP}/#{project_icon_rel_path}"
       config_icon = false
       if File.exists? project_icon_abs_path
         config_icon = project_icon_rel_path
