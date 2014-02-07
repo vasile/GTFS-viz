@@ -9,6 +9,10 @@ import 'inc/ft.rb'
 
 # Allowed characters: letters, digits, -, _
 PROJECT_NAME = 'usa-san-francisco-muni'
+# Path of the repo cloned/downloaded from https://github.com/vasile/transit-simulator
+PATH_TO_APP_TRANSIT_SIMULATOR = nil
+# Path of the repo cloned/downloaded from https://github.com/vasile/transit-simulator-route-icon
+PATH_TO_SCRIPT_ROUTE_ICON = nil
 
 if Rake.application.options.show_tasks
   print "=======================\n"
@@ -378,21 +382,31 @@ end
 namespace :project do
   desc "PROJECT: copy the project files in the API folder"
   task :deploy do
-    API_FOLDER = "#{Dir.pwd}/../../api"
+    if PATH_TO_APP_TRANSIT_SIMULATOR.nil?
+      print "WARNING - invalid PATH_TO_APP_TRANSIT_SIMULATOR: #{PATH_TO_APP_TRANSIT_SIMULATOR} !\n"
+      print "ABORT\n"
+      exit
+    end
 
-    API_GTFS_FOLDER = "#{API_FOLDER}/gtfs-data/#{PROJECT_NAME}"
+    API_FOLDER = "#{PATH_TO_APP_TRANSIT_SIMULATOR}/api"
+
+    API_GTFS_FOLDER = "#{API_FOLDER}/gtfs-data"
     sh "rm -rf #{API_GTFS_FOLDER} && mkdir #{API_GTFS_FOLDER}"
     ["gtfs.db", "gtfs_shapes.geojson", "gtfs_stops.geojson"].each do |project_file|
       sh "cp #{TMP_PATH}/#{project_file} #{API_GTFS_FOLDER}/#{project_file}"
     end
     
-    API_TMP_FOLDER = "#{API_FOLDER}/tmp/#{PROJECT_NAME}"
+    API_TMP_FOLDER = "#{API_FOLDER}/tmp"
     sh "rm -rf #{API_TMP_FOLDER} && mkdir #{API_TMP_FOLDER} && chmod 0777 #{API_TMP_FOLDER}"
     sh "mkdir -p #{API_TMP_FOLDER}/cache/db && chmod 0777 #{API_TMP_FOLDER}/cache/db"
+
+    Rake::Task["project:update_settings_ft"].invoke
+    Rake::Task["project:update_settings_map"].invoke
+    Rake::Task["project:update_settings_routes"].invoke
   end
 
   desc "PROJECT: push to Fusion Tables (require Google account)"
-  task :update_fusiontables do
+  task :deploy_fusiontables do
     require 'fusion_tables'
     Profiler.init('START Fusion Tables INSERTs')
     
@@ -403,9 +417,22 @@ namespace :project do
     Profiler.save('DONE Fusion Tables INSERTs')
   end
 
+  desc "PROJECT: update ALL project settings"
+  task :update_settings_all do
+    Rake::Task["project:update_settings_ft"].invoke
+    Rake::Task["project:update_settings_map"].invoke
+    Rake::Task["project:update_settings_routes"].invoke
+  end
+
   desc "PROJECT: update project settings for Fusion Tables"
   task :update_settings_ft do
-    map_js_config_file = "#{Dir.pwd}/../../static/js/config.js"
+    if PATH_TO_APP_TRANSIT_SIMULATOR.nil?
+      print "WARNING - invalid PATH_TO_APP_TRANSIT_SIMULATOR: #{PATH_TO_APP_TRANSIT_SIMULATOR} !\n"
+      print "ABORT\n"
+      exit
+    end
+
+    map_js_config_file = "#{PATH_TO_APP_TRANSIT_SIMULATOR}/static/js/config.js"
     map_js_config = JSON.parse(File.open(map_js_config_file, "r").read)
 
     map_js_config['ft_layer_ids.mask'] = nil
@@ -423,7 +450,13 @@ namespace :project do
 
   desc "PROJECT: update project settings for map"
   task :update_settings_map do
-    map_js_config_file = "#{Dir.pwd}/../../static/js/config.js"
+    if PATH_TO_APP_TRANSIT_SIMULATOR.nil?
+      print "WARNING - invalid PATH_TO_APP_TRANSIT_SIMULATOR: #{PATH_TO_APP_TRANSIT_SIMULATOR} !\n"
+      print "ABORT\n"
+      exit
+    end
+
+    map_js_config_file = "#{PATH_TO_APP_TRANSIT_SIMULATOR}/static/js/config.js"
     map_js_config = JSON.parse(File.open(map_js_config_file, "r").read)
 
     map_js_config['api_paths.trips'] = 'api/getTrips/[hhmm]'
@@ -449,15 +482,27 @@ namespace :project do
 
   desc "PROJECT: update project settings for routes (color, icons)"
   task :update_settings_routes do
-    map_js_config_file = "#{Dir.pwd}/../../static/js/config.js"
+    if PATH_TO_APP_TRANSIT_SIMULATOR.nil?
+      print "WARNING - invalid PATH_TO_APP_TRANSIT_SIMULATOR: #{PATH_TO_APP_TRANSIT_SIMULATOR} !\n"
+      print "ABORT\n"
+      exit
+    end
+
+    if PATH_TO_SCRIPT_ROUTE_ICON.nil?
+      print "NOTICE - invalid PATH_TO_SCRIPT_ROUTE_ICON: #{PATH_TO_SCRIPT_ROUTE_ICON} !\n"
+    end
+
+    map_js_config_file = "#{PATH_TO_APP_TRANSIT_SIMULATOR}/static/js/config.js"
     map_js_config = JSON.parse(File.open(map_js_config_file, "r").read)
 
     if map_js_config["routes"].nil?
       map_js_config["routes"] = {}
     end
 
-    sh_line = "rm -f #{Dir.pwd}/../../static/images/route_icons/*.png"
-    sh sh_line
+    if PATH_TO_SCRIPT_ROUTE_ICON
+      sh_line = "rm -f #{PATH_TO_APP_TRANSIT_SIMULATOR}/static/images/route_icons/*.png"
+      sh sh_line
+    end
 
     routes = GTFS.getRoutesConfig()
     routes.each do |route|
@@ -468,18 +513,20 @@ namespace :project do
       end
 
       project_icon_rel_path = "static/images/route_icons/#{route_key}.png"
-      project_icon_abs_path = "#{Dir.pwd}/../../#{project_icon_rel_path}"
+      project_icon_abs_path = "#{PATH_TO_APP_TRANSIT_SIMULATOR}/#{project_icon_rel_path}"
       config_icon = false
       if File.exists? project_icon_abs_path
         config_icon = project_icon_rel_path
       else
-        sh_line = "php #{Dir.pwd}/../vehicle-icon/route_icon.php bg=#{route['route_color']} fg=#{route['route_text_color']} t=#{route_key}"
-        sh(sh_line)
+        if PATH_TO_SCRIPT_ROUTE_ICON
+          sh_line = "php #{PATH_TO_SCRIPT_ROUTE_ICON}/route_icon.php bg=#{route['route_color']} fg=#{route['route_text_color']} t=#{route_key}"
+          sh(sh_line)
 
-        tmp_file = "/tmp/route_icon_#{route_key}.png"
-        if File.exists? tmp_file
-          sh("mv #{tmp_file} #{project_icon_abs_path}")
-          config_icon = project_icon_rel_path
+          tmp_file = "#{PATH_TO_SCRIPT_ROUTE_ICON}/tmp/route_icon_#{route_key}.png"
+          if File.exists? tmp_file
+            sh("mv #{tmp_file} #{project_icon_abs_path}")
+            config_icon = project_icon_rel_path
+          end
         end
       end
       

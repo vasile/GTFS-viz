@@ -9,15 +9,15 @@ The script was tested on OSX machines with Ruby 1.9.x
 - clone / download the copy of the repo on your machine
 - install required Ruby Gems
 
-		# (sudo) gem install json sqlite3 fusion_tables rake
+    	(sudo) gem install json sqlite3 fusion_tables rake
 
 ## Setup
 
 - create a folder inside **./gtfs-data** and name it with your project information (i.e. **usa-san-francisco-muni**)
-	- the newly created folder inside gtfs-data should contain letters, digits, +, - characters only
+  - the newly created folder inside gtfs-data should contain letters, digits, +, - characters only
 - get a GTFS dataset and unzip-it inside the folder that you just created (i.e. )
-	- not sure where to get one ? Check http://www.gtfs-data-exchange.com/
-- edit the Rakefile and change the PROJECT_NAME variable with the folder name
+  - not sure where to get one ? Check http://www.gtfs-data-exchange.com/
+- edit the Rakefile and change the PROJECT_NAME constant with the folder name
 
 For example this is how the [SFMTA GTFS](http://www.gtfs-data-exchange.com/agency/san-francisco-municipal-transportation-agency/) data looks on the local folder - http://screencast.com/t/5V2q2QZP9W7
 
@@ -25,30 +25,46 @@ For example this is how the [SFMTA GTFS](http://www.gtfs-data-exchange.com/agenc
 
 The following Rake Tasks sequence need to be executed. 
 
+	cd /path/to/GTFS-viz
+
 	rake setup:init
-	
+  
 	rake parse:shapes_2_geojson
 	rake parse:stops_2_geojson
 	rake parse:gtfs_2_kml
-	
+  
 	rake parse:gtfs_2_sqlite
-	
+  
 	rake parse:stops_interpolate
-	
+  
 	rake parse:stops_trips_update
-	
-	rake project:deploy
-	rake project:update_fusiontables
-	
-	rake project:update_settings_ft
-	rake project:update_settings_map
-	rake project:update_settings_routes
-	rake project:update_name
 
-Now you can access the transit simulator in browser and anjoy the animation :)
-	
 **TODO - add a detailed description about each task and execution times for SFMTA project.**
 
+Check the contents of ./PROJECT_NAME/ , you should have
+- gtfs.db, SQLite DB with calendar.txt, routes.txt, stop_times.txt, stops.txt, trips.txt
+- gtfs_shapes.geojson, gtfs_stops.geojson - GeoJSON files with shapes.txt, stops.txt
+- gtfs_shapes.kml, gtfs_stops.kml - KML (Google Earth) files with shapes.txt, stops.txt
+
+## Visualize
+
+You can open the GeoJSON files with [QuantumGIS](https://www.qgis.org/en/site/forusers/download.html) or any other GIS software. Same with the KML files which can be visualized with Google Earth.
+
+If you want to create an animation of the GTFS data you will need to
+
+- download / clone the [Transit Simulator](https://github.com/vasile/transit-simulator) web application
+- download / clone the [Transit Route Icon](https://github.com/vasile/transit-simulator-route-icon) PHP script
+- edit Rakefile and change the PATH_TO_APP_TRANSIT_SIMULATOR, PATH_TO_SCRIPT_ROUTE_ICON constants
+- run the tasks below:
+	
+		cd /path/to/GTFS-viz
+
+		rake project:deploy_fusiontables
+  
+		rake project:deploy
+  
+Now you can access the transit simulator in browser and enjoy the animation :)
+  
 ## License
 
 **Copyright (c) 2014 Vasile Coțovanu** - http://www.vasile.ch
