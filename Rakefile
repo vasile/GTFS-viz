@@ -495,12 +495,4 @@ namespace :project do
 
     File.open(map_js_config_file, "w") {|f| f.write(JSON.pretty_generate(map_js_config)) }
   end
-
-  desc "PROJECT: update project name"
-  task :update_name do
-    api_config_file = "#{Dir.pwd}/../../api/inc/config.json"
-    api_config = JSON.parse(File.open(api_config_file, "r").read)
-    api_config['PROJECT_NAME'] = PROJECT_NAME
-    File.open(api_config_file, "w") {|f| f.write(JSON.pretty_generate(api_config)) }
-  end
 end
