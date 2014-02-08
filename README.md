@@ -14,12 +14,12 @@ The script was tested on OSX machines with Ruby 1.9.x
 ## Setup
 
 - create a folder inside **./gtfs-data** and name it with your project information (i.e. **usa-san-francisco-muni**)
-  - the newly created folder inside gtfs-data should contain letters, digits, +, - characters only
-- get a GTFS dataset and unzip-it inside the folder that you just created (i.e. )
-  - not sure where to get one ? Check http://www.gtfs-data-exchange.com/
+  - the name of the folder should contain letters, digits, +, - characters only
+- in this folder unzip the GTFS dataset
+  - not sure where to get GTFS data ? Check http://www.gtfs-data-exchange.com/
 - edit the Rakefile and change the PROJECT_NAME constant with the folder name
 
-For example this is how the [SFMTA GTFS](http://www.gtfs-data-exchange.com/agency/san-francisco-municipal-transportation-agency/) data looks on the local folder - http://screencast.com/t/5V2q2QZP9W7
+For instance this is how [SFMTA GTFS](http://www.gtfs-data-exchange.com/agency/san-francisco-municipal-transportation-agency/) dataset looks like http://screencast.com/t/5V2q2QZP9W7
 
 ## Import
 
