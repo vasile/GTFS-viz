@@ -63,7 +63,7 @@ If you want to create an animation of the GTFS data you will need to
   
 		rake project:deploy
   
-Now you can access the transit simulator in browser and enjoy the animation :)
+Now you can access the [Transit Map](https://github.com/vasile/transit-map) app in browser and enjoy the animation :)
   
 ## License
 
