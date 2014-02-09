@@ -64,6 +64,9 @@ If you want to create an animation of the GTFS data you will need to
 		rake project:deploy
   
 Now you can access the [Transit Map](https://github.com/vasile/transit-map) app in browser and enjoy the animation :)
+
+![Swiss railways(SBB)](https://raw.github.com/vasile/transit-map/master/static/images/github_badge_800px.png "Swiss railways(SBB)")
+SBB network - http://simcity.vasile.ch/sbb/
   
 ## License
 
