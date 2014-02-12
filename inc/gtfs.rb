@@ -66,6 +66,15 @@ class GTFS
         row = self.csv_line_to_row(headers, line)
 
         row_values = []
+        if table_name == 'stop_times'
+          row['arrival_time'] = validate_time(row['arrival_time'])
+          row['departure_time'] = validate_time(row['departure_time'])
+
+          if row['departure_time'] == row['arrival_time']
+            row['arrival_time'] = hms_shift(row['arrival_time'], -5)
+          end
+        end
+        
         table_columns.each do |column|
           value = row[column]
           if value.is_a? String
@@ -73,7 +82,7 @@ class GTFS
           end
           row_values.push(value)
         end
-
+        
         sql = "INSERT INTO #{table_name} (#{table_columns.join(', ')}) VALUES (#{(["?"] * table_columns.length).join(', ')})"
         db.execute(sql, row_values)
       end
@@ -230,6 +239,7 @@ class GTFS
     routes = @db.execute(sql)
     return routes
   end
+end
 
 # Adapted from https://gist.github.com/j05h/673425
 #   loc1 and loc2 are arrays of [latitude, longitude]
@@ -246,4 +256,34 @@ def compute_distance (lon1, lat1, lon2, lat2)
   c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
   d = (6371 * c * 1000).to_i
 end
+
+def hms_shift(hms, shift_seconds)
+  hms_parts = hms.split(':')
+  time_s = hms_parts[0].to_i * 3600 + hms_parts[1].to_i * 60 + hms_parts[2].to_i
+  
+  time_s = time_s + shift_seconds
+  hms_shifted = seconds_2_hms(time_s)
+  
+  return hms_shifted
+end
+
+def seconds_2_hms(time_s)
+  hh = (time_s / 3600).floor
+  mm = ((time_s - hh * 3600) / 60).floor
+  ss = time_s - hh * 3600 - mm * 60
+  
+  return "#{'%02d' % hh}:#{'%02d' % mm}:#{'%02d' % ss}"
+end
+
+def validate_time(hms)
+  if hms.length === 8
+    return hms
+  end
+  
+  if hms.match(/^[0-9]:[0-9]{2}:[0-9]{2}$/)
+    return "#{0}hms"
+  end
+  
+  print "GTFS field, unknown time format: #{hms}\n"
+  return hms
 end
