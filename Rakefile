@@ -480,7 +480,7 @@ namespace :project do
     end
 
     if PATH_TO_SCRIPT_ROUTE_ICON.nil?
-      print "NOTICE - invalid PATH_TO_SCRIPT_ROUTE_ICON: #{PATH_TO_SCRIPT_ROUTE_ICON} !\n"
+      print "NOTICE - PATH_TO_SCRIPT_ROUTE_ICON is needed for generating the vehicle route icons\n"
     end
 
     map_js_config_file = "#{PATH_TO_APP_TRANSIT_MAP}/static/js/config.js"
