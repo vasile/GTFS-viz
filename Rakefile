@@ -206,111 +206,92 @@ namespace :parse do
       end
 
       coords_k = 0
-      
       trip_ok = true
       
       db_stops.each_with_index do |row, k|
-        point_found = nil
-        shape_percent = nil
-        
-        if k == 0
-          point_found = shape_coords['geometry']['coordinates'][0]
-          shape_percent = 0
-        end
-
-        if k == (db_stops.length - 1)
-          point_found = shape_coords['geometry']['coordinates'][-1]
-          shape_percent = 100
-        end
-
-        if point_found.nil?
-          d_min = 1000
-          p_data = nil
-          shape_coords['geometry']['coordinates'].each_with_index do |p2, k1|
-            if (k1 == 0) || (k1 < coords_k)
-              next
-            end
-
-            # From http://paulbourke.net/geometry/pointlineplane/
-            p1 = shape_coords['geometry']['coordinates'][k1 - 1]
-
-            p1_x = p1[0]
-            p1_y = p1[1]
-            p2_x = p2[0]
-            p2_y = p2[1]
-            
-            p3_x = row['stop_lon']
-            p3_y = row['stop_lat']
-
-            line_u = ((p3_x - p1_x) * (p2_x - p1_x) + (p3_y - p1_y) * (p2_y - p1_y)) / ( (p2_x - p1_x) ** 2 + (p2_y - p1_y) ** 2 )
-
-            if line_u < 0 || line_u.nan?
-              p_x = p1_x
-              p_y = p1_y
-            elsif line_u > 1
-              p_x = p2_x
-              p_y = p2_y
-            else
-              p_x = p1_x + line_u * (p2_x - p1_x)
-              p_y = p1_y + line_u * (p2_y - p1_y)
-            end
-
-            dP3P = compute_distance(p3_x, p3_y, p_x, p_y)
-
-            if dP3P < d_min
-              p_data = {
-                'coords_k' => k1 - 1,
-                'x' => p_x.round(6),
-                'y' => p_y.round(6),
-              }
-              d_min = dP3P
-              if debug_shape_id
-                p "Station: #{row['stop_id']} found: #{k1},#{d_min}"
-              end
-
-              # Maximum distance that a station can be placed from the polyline
-              # - useful for shapes like these - http://screencast.com/t/3AXWNfCI7
-              if d_min < 20
-                break
-              end
-            end
+        d_min = 1000
+        p_data = nil
+        shape_coords['geometry']['coordinates'].each_with_index do |p2, k1|
+          if (k1 == 0) || (k1 < coords_k)
+            next
           end
 
-          if p_data.nil?
-            # Incomplete shape_id ? http://screencast.com/t/apW714Tp6u9O
-            print "ERROR finding stop_id #{row['stop_id']} along shape_id #{trip_row['shape_id']}\n"
-            trip_ok = false
-            break
-          end
+          # From http://paulbourke.net/geometry/pointlineplane/
+          p1 = shape_coords['geometry']['coordinates'][k1 - 1]
 
-          coords_k = p_data['coords_k']
+          p1_x = p1[0]
+          p1_y = p1[1]
+          p2_x = p2[0]
+          p2_y = p2[1]
           
-          p1 = shape_coords['geometry']['coordinates'][coords_k]
-          d1P = compute_distance(p1[0], p1[1], p_data['x'], p_data['y'])
-          p_d_total = shape_coords['properties']['d_total'][coords_k] + d1P
-          d_shape = shape_coords['properties']['d_total'][-1]
+          p3_x = row['stop_lon']
+          p3_y = row['stop_lat']
 
-          shape_percent = ((p_d_total.to_f / d_shape.to_f) * 100).round(2)
+          line_u = ((p3_x - p1_x) * (p2_x - p1_x) + (p3_y - p1_y) * (p2_y - p1_y)) / ( (p2_x - p1_x) ** 2 + (p2_y - p1_y) ** 2 )
 
-          point_found = [p_data['x'], p_data['y']]
+          if line_u < 0 || line_u.nan?
+            p_x = p1_x
+            p_y = p1_y
+          elsif line_u > 1
+            p_x = p2_x
+            p_y = p2_y
+          else
+            p_x = p1_x + line_u * (p2_x - p1_x)
+            p_y = p1_y + line_u * (p2_y - p1_y)
+          end
+
+          dP3P = compute_distance(p3_x, p3_y, p_x, p_y)
+
+          if dP3P < d_min
+            p_data = {
+              'coords_k' => k1 - 1,
+              'x' => p_x.round(6),
+              'y' => p_y.round(6),
+            }
+            d_min = dP3P
+            if debug_shape_id
+              p "Station: #{row['stop_id']} found: #{k1},#{d_min}"
+            end
+
+            # Maximum distance that a station can be placed from the polyline
+            # - useful for shapes like these - http://screencast.com/t/3AXWNfCI7
+            if d_min < 20
+              break
+            end
+          end
         end
+        # END LOOP: Shape coordinates
 
-        if trip_ok == false
+        if p_data.nil?
+          # Incomplete shape_id ? http://screencast.com/t/apW714Tp6u9O
+          print "ERROR finding stop_id #{row['stop_id']} along shape_id #{trip_row['shape_id']}\n"
+          trip_ok = false
           break
         end
+
+        coords_k = p_data['coords_k']
         
+        p1 = shape_coords['geometry']['coordinates'][coords_k]
+        d1P = compute_distance(p1[0], p1[1], p_data['x'], p_data['y'])
+        p_d_total = shape_coords['properties']['d_total'][coords_k] + d1P
+        d_shape = shape_coords['properties']['d_total'][-1]
+
+        shape_percent = ((p_d_total.to_f / d_shape.to_f) * 100).round(2)
+
         trip_found['stations'].push({
           'stop_id' => row['stop_id'],
           'shape_percent' => shape_percent,
         })
 
         if debug_shape_id
-          print "#{coords_k},#{row['stop_id']},#{point_found[0]},#{point_found[1]},#{shape_percent}\n"
+          print "#{coords_k},#{row['stop_id']},#{p_data['x']},#{p_data['y']},#{shape_percent}\n"
         end
       end
+      # END LOOP: Trip Stations
       
       trip_found['ok'] = trip_ok
     end
+    # END LOOP: Trips
     
     File.open("#{TMP_PATH}/trips_shapes.json", "w") {|f| f.write(JSON.pretty_generate(trips)) }
     Profiler.save('DONE stops_interpolate')
