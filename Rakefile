@@ -418,7 +418,7 @@ namespace :project do
       print "ABORT\n"
       exit
     end
-
+    
     map_js_config_file = "#{PATH_TO_APP_TRANSIT_MAP}/static/js/config.js"
     map_js_config = JSON.parse(File.open(map_js_config_file, "r").read)
 
@@ -426,10 +426,14 @@ namespace :project do
     map_js_config['ft_layer_ids.topology_edges'] = nil
     map_js_config['ft_layer_ids.topology_stations'] = nil
     
-    require 'fusion_tables'
-    ["shapes", "stops"].each do |feature_name|
-      ft_table = FusionTables.getTable(feature_name)
-      map_js_config["ft_layer_ids.gtfs_#{feature_name}"] = ft_table.id
+    if FT_USERNAME == 'Google_Drive_Username'
+      print "NOTICE - rake project:update_settings_ft task need a valid FT_USERNAME\n"
+    else
+      require 'fusion_tables'
+      ["shapes", "stops"].each do |feature_name|
+        ft_table = FusionTables.getTable(feature_name)
+        map_js_config["ft_layer_ids.gtfs_#{feature_name}"] = ft_table.id
+      end
     end
 
     File.open(map_js_config_file, "w") {|f| f.write(JSON.pretty_generate(map_js_config)) }
