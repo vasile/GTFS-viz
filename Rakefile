@@ -8,7 +8,7 @@ import 'inc/gtfs.rb'
 import 'inc/ft.rb'
 
 # Allowed characters: letters, digits, -, _
-PROJECT_NAME = 'usa-san-francisco-muni'
+PROJECT_NAME = 'sfmta'
 # Path of the repo cloned/downloaded from https://github.com/vasile/transit-map
 PATH_TO_APP_TRANSIT_MAP = nil
 # Path of the repo cloned/downloaded from https://github.com/vasile/transit-map-route-icon
