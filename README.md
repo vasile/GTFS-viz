@@ -13,57 +13,65 @@ The script was tested on OSX machines with Ruby 1.9.x
 
 ## Setup
 
-- create a folder inside **./gtfs-data** and name it with your project information (i.e. **usa-san-francisco-muni**)
-  - the name of the folder should contain letters, digits, +, - characters only
+- create a folder inside **./gtfs-data** and name it with your project information
+  - the name of the folder can contain letters, digits, +, - characters only
 - in this folder unzip the GTFS dataset
   - not sure where to get GTFS data ? Check http://www.gtfs-data-exchange.com/
-- edit the Rakefile and change the PROJECT_NAME constant with the folder name
+- edit the Rakefile and change the PROJECT_NAME constant with the folder name, i.e. **sfmta**
+- you are ready to parse the GTFS data if you have this [folder structure](http://screencast.com/t/E78YDBuE) and running `rake -T` shows the available tasks: http://screencast.com/t/9bt3i3lfL
 
-For instance this is how [SFMTA GTFS](http://www.gtfs-data-exchange.com/agency/san-francisco-municipal-transportation-agency/) dataset looks like http://screencast.com/t/5V2q2QZP9W7
 
-## Import
+## Parse GTFS data
 
-The following Rake Tasks sequence need to be executed. 
+In a terminal window run the following Rake tasks:
 
 	cd /path/to/GTFS-viz
 
-	rake setup:init
-
+	# Initialize folders and the SQLite DB
+	rake setup:init	
+	
+	# Fill the DB tables defined in ./inc/gtfs_mapping.yml
 	rake parse:gtfs_2_sqlite
-
+	
+	# Generate GeoJSON files from shapes.txt and stops.txt
+	# If the shapes.txt is missing from the GTFS dataset, generate one based on stops.txt
 	rake parse:shapes_2_geojson
 	rake parse:stops_2_geojson
+	
+	# Generate KML files from shapes.txt and stops.txt
 	rake parse:gtfs_2_kml
-  
+  	
+	# Find the position of the stops along the shapes, store them in ./tmp/sfmta/trips_shapes.json
 	rake parse:stops_interpolate
-  
+  	
+	# Update DB trips and stop_times
 	rake parse:stops_trips_update
 
-**TODO - add a detailed description about each task and execution times for SFMTA project.**
-
-Check the contents of ./PROJECT_NAME/ , you should have
-- gtfs.db, SQLite DB tables of calendar.txt, routes.txt, stop_times.txt, stops.txt, trips.txt
+Check the contents of ./tmp/sfmta - http://screencast.com/t/V3r5TZBn0m
+- gtfs.db - SQLite DB tables of calendar.txt, routes.txt, stop_times.txt, stops.txt, trips.txt
 - gtfs_shapes.geojson, gtfs_stops.geojson - GeoJSON files of shapes.txt, stops.txt
 - gtfs_shapes.kml, gtfs_stops.kml - KML (Google Earth) files of shapes.txt, stops.txt
 
 ## Visualize
 
-You can open the GeoJSON files with [QuantumGIS](https://www.qgis.org/en/site/forusers/download.html) or any other GIS software. Same with the KML files which can be visualized with Google Earth.
+You can open the GeoJSON files with [QuantumGIS](https://www.qgis.org/en/site/forusers/download.html) or any other GIS software. Same with the KML files which can be visualized using Google Earth.
 
 If you want to create an animation of the GTFS data you will need to
 
 - download / clone the [Transit Map](https://github.com/vasile/transit-map) web application
 - download / clone the [Transit Map Route Icon](https://github.com/vasile/transit-map-route-icon) PHP script
 - edit Rakefile and change the PATH_TO_APP_TRANSIT_SIMULATOR, PATH_TO_SCRIPT_ROUTE_ICON constants
-- run the tasks below:
-	
-		cd /path/to/GTFS-viz
 
-		rake project:deploy_fusiontables
+In a terminal window run the following Rake tasks:
+	
+	# Populate FusionTables with shapes.txt and stops.txt
+	# This task requires configuration of the FT user/pass/key in ./inc/ft_login.rb
+	rake project:deploy_fusiontables
+  	
+	# Copy the files needed by the Transit Map web application
+	rake project:deploy
   
-		rake project:deploy
-  
-Now you can access the [Transit Map](https://github.com/vasile/transit-map) app in browser and enjoy the animation :)
+Now, you should be able to see some action in your browser :)
 
 ![Swiss railways(SBB)](https://raw.github.com/vasile/transit-map/master/static/images/github_badge_800px.png "Swiss railways(SBB)")
 SBB network - http://simcity.vasile.ch/sbb/
