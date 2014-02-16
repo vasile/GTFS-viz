@@ -16,7 +16,7 @@ PATH_TO_SCRIPT_ROUTE_ICON = nil
 
 if Rake.application.options.show_tasks
   print "=======================\n"
-  print "Project #{PROJECT_NAME}\n"
+  print "Project: #{PROJECT_NAME}\n"
   print "=======================\n"
 end
 
