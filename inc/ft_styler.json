@@ -1,0 +1,9 @@
+{
+   "polylineOptions":{
+      "strokeColorStyler":{
+         "kind":"fusiontables#fromColumn",
+         "columnName":"bg_color"
+      },
+      "strokeWeight": 2
+   }
+}
