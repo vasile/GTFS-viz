@@ -97,15 +97,31 @@ class GTFS
       }
     end
 
+    shapes_color = GTFS::getShapesConfig()
+
+    shapes_not_found = []
+
     CSV.parse(lines.join).each do |line|
       row = self.csv_line_to_row(headers, line)
 
-      f_found = json['features'].find{|f| f['properties']['shape_id'] == row['shape_id']}
+      shape_id = row['shape_id']
+
+      if shapes_not_found.include? shape_id
+        next
+      end
+
+      shape_in_db = shapes_color.find{|s| s['shape_id'] == shape_id} 
+      if shape_in_db.nil?
+        shapes_not_found.push(shape_id)
+        next
+      end
+
+      f_found = json['features'].find{|f| f['properties']['shape_id'] == shape_id}
       if f_found.nil?
         f_found = {
           'type' => 'Feature',
           'properties' => {
-            'shape_id' => row['shape_id']
+            'shape_id' => shape_id,
           },
           'geometry' => {
             'type' => 'LineString',
@@ -238,6 +254,18 @@ class GTFS
     sql = 'SELECT DISTINCT route_short_name, route_color,route_text_color FROM routes'
     routes = @db.execute(sql)
     return routes
+  end
+
+
+  def self.getShapesConfig
+    if @shapes_config
+      return @shapes_config
+    end
+
+    self.db_init
+    sql = 'SELECT DISTINCT shape_id, trips.route_id, route_color,route_text_color FROM trips, routes WHERE trips.route_id = routes.route_id'
+    @shapes_config = @db.execute(sql)
+    return @shapes_config
   end
 
   def self.override_tables
