@@ -80,6 +80,11 @@ namespace :parse do
     Profiler.save("DONE SQL INSERTs")
   end
 
+  desc "PARSE: Override GTFS files, see ./inc/gtfs_override.yml file"
+  task :gtfs_override do
+    GTFS::override_tables()
+  end
+
   desc "PARSE: GTFS shapes.txt file to GeoJSON"
   task :shapes_2_geojson do
     gtfs_file = "#{GTFS_FOLDER}/shapes.txt"

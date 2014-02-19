@@ -239,6 +239,43 @@ class GTFS
     routes = @db.execute(sql)
     return routes
   end
+
+  def self.override_tables
+    config = YAML.load(File.open("#{Dir.pwd}/inc/gtfs_override.yml"))
+    if config[PROJECT_NAME].nil?
+      print "Missing #{PROJECT_NAME} definition in ./inc/gtfs_override.yml\n"
+      exit
+    end
+
+    self.db_init
+
+    config[PROJECT_NAME].keys.each do |table_name|
+      table_pk = config[PROJECT_NAME][table_name]['field_unique']
+      table_field = config[PROJECT_NAME][table_name]['field_filter']
+      rows = config[PROJECT_NAME][table_name]['values']
+
+      rows.keys.each do |field_value|
+        set_items = []
+
+        fields_to_update = rows[field_value]
+        fields_to_update.keys.each do |column_name|
+          column_value = fields_to_update[column_name]
+          if column_value.nil?
+            next
+          end
+
+          set_items.push("#{column_name} = '#{column_value}'")
+        end
+
+        if set_items.length == 0
+          next
+        end
+
+        sql = "UPDATE #{table_name} SET #{set_items.join(', ')} WHERE #{table_field} = '#{field_value}'"
+        @db.execute(sql)
+      end
+    end
+  end
 end
 
 # Adapted from https://gist.github.com/j05h/673425
