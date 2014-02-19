@@ -51,11 +51,11 @@ class FusionTables
           next
         end
 
-        bg_color = shape_config['route_color'].to_s == '' ? '#FF0000' : shape_config['route_color']
+        bg_color = shape_config['route_color'].to_s == '' ? 'FF0000' : shape_config['route_color']
 
         ft_row = {
           'shape_id' => shape_id,
-          'bg_color' => bg_color,
+          'bg_color' => "##{bg_color}",
           'geometry' => '<LineString><coordinates>' + kml_coordinates.join(' ') + '</coordinates></LineString>',
         }
         ft_rows.push(ft_row)

@@ -3,170 +3,170 @@ sfmta:
         field_filter: route_short_name
         values:
             1:
-                route_color: "#20B050"
+                route_color: "20B050"
             1AX:
-                route_color: "#F187A8"
+                route_color: "F187A8"
             1BX:
-                route_color: "#F187A8"
+                route_color: "F187A8"
             2:
-                route_color: "#20B050"
+                route_color: "20B050"
             3:
-                route_color: "#20B050"
+                route_color: "20B050"
             5:
-                route_color: "#20B050"
+                route_color: "20B050"
             5L:
-                route_color: "#20B050"
+                route_color: "20B050"
             6:
-                route_color: "#20B050"
+                route_color: "20B050"
             71:
-                route_color: "#20B050"
+                route_color: "20B050"
             71L:
-                route_color: "#20B050"
+                route_color: "20B050"
             8AX:
-                route_color: "#F187A8"
+                route_color: "F187A8"
             8BX:
-                route_color: "#F187A8"
+                route_color: "F187A8"
             8X:
-                route_color: "#7D81BB"
+                route_color: "7D81BB"
             9:
-                route_color: "#7D81BB"
+                route_color: "7D81BB"
             9L:
-                route_color: "#7D81BB"
+                route_color: "7D81BB"
             10:
-                route_color: "#7D81BB"
+                route_color: "7D81BB"
             12:
-                route_color: "#7D81BB"
+                route_color: "7D81BB"
             14:
-                route_color: "#7D81BB" 
+                route_color: "7D81BB" 
             14L:
-                route_color: "#7D81BB" 
+                route_color: "7D81BB" 
             14X:
-                route_color: "#F187A8"
+                route_color: "F187A8"
             16X:
-                route_color: "#F187A8"
+                route_color: "F187A8"
             17:
-                route_color: "#1DAFE4"
+                route_color: "1DAFE4"
             18:
-                route_color: "#EA7D2F"
+                route_color: "EA7D2F"
             19:
-                route_color: "#EA7D2F"
+                route_color: "EA7D2F"
             21:
-                route_color: "#20B050"
+                route_color: "20B050"
             22:
-                route_color: "#EA7D2F"
+                route_color: "EA7D2F"
             23:
-                route_color: "#EC8F3D"
+                route_color: "EC8F3D"
             24:
-                route_color: "#EA7D2F"
+                route_color: "EA7D2F"
             27:
-                route_color: "#7D81BB"
+                route_color: "7D81BB"
             28:
-                route_color: "#EA7D2F"
+                route_color: "EA7D2F"
             28L:
-                route_color: "#EA7D2F"
+                route_color: "EA7D2F"
             29:
-                route_color: "#EA7D2F"
+                route_color: "EA7D2F"
             30:
-                route_color: "#7D81BB"
+                route_color: "7D81BB"
             30X:
-                route_color: "#F187A8"
+                route_color: "F187A8"
             31:
-                route_color: "#20B050"
+                route_color: "20B050"
             31AX:
-                route_color: "#F187A8"
+                route_color: "F187A8"
             31BX:
-                route_color: "#F187A8"
+                route_color: "F187A8"
             33:
-                route_color: "#EA7D2F"
+                route_color: "EA7D2F"
             35:
-                route_color: "#1DAFE4"
+                route_color: "1DAFE4"
             36:
-                route_color: "#1DAFE4"
+                route_color: "1DAFE4"
             37:
-                route_color: "#1DAFE4"
+                route_color: "1DAFE4"
             38:
-                route_color: "#20B050"
+                route_color: "20B050"
             38L:
-                route_color: "#20B050"
+                route_color: "20B050"
             38AX:
-                route_color: "#F187A8"
+                route_color: "F187A8"
             38BX:
-                route_color: "#F187A8"
+                route_color: "F187A8"
             39:
-                route_color: "#1DAFE4"
+                route_color: "1DAFE4"
             41:
-                route_color: "#7D81BB"
+                route_color: "7D81BB"
             43:
-                route_color: "#EA7D2F"
+                route_color: "EA7D2F"
             44:
-                route_color: "#EA7D2F"
+                route_color: "EA7D2F"
             45:
-                route_color: "#7D81BB"
+                route_color: "7D81BB"
             47:
-                route_color: "#EC8F3D"
+                route_color: "EC8F3D"
             48:
-                route_color: "#EA7D2F"
+                route_color: "EA7D2F"
             49:
-                route_color: "#EA7D2F"
+                route_color: "EA7D2F"
             52:
-                route_color: "#1DAFE4"
+                route_color: "1DAFE4"
             54:
-                route_color: "#EC8F3D"
+                route_color: "EC8F3D"
             56:
-                route_color: "#1DAFE4"
+                route_color: "1DAFE4"
             66:
-                route_color: "#1DAFE4"
+                route_color: "1DAFE4"
             67:
-                route_color: "#1DAFE4"
+                route_color: "1DAFE4"
             76X:
-                route_color: "#7D81BB"
+                route_color: "7D81BB"
             80X:
                 route_color: 
             81X:
-                route_color: "#F187A8"
+                route_color: "F187A8"
             82X:
-                route_color: "#F187A8"
+                route_color: "F187A8"
             83X:
-                route_color: "#F187A8"
+                route_color: "F187A8"
             88:
-                route_color: "#F187A8"
+                route_color: "F187A8"
             90:
                 route_color: 
             91:
                 route_color: 
             108:
-                route_color: "#F187A8"
+                route_color: "F187A8"
             F:
-                route_color: "#E68382"
+                route_color: "E68382"
             J:
-                route_color: "#D27129"
+                route_color: "D27129"
             J-OWL:
                 route_color: 
             K-OWL:
                 route_color: 
             KT:
-                route_color: "#E01E3C"
+                route_color: "E01E3C"
             L:
-                route_color: "#902C8E"
+                route_color: "902C8E"
             L-OWL:
                 route_color: 
             M:
-                route_color: "#15985E"
+                route_color: "15985E"
             M-OWL:
                 route_color: 
             N:
-                route_color: "#297FBA"
+                route_color: "297FBA"
             NX: 
-                route_color: "#F187A8"
+                route_color: "F187A8"
             N-OWL:
                 route_color: 
             S:
-                route_color: "#FFCC00"
+                route_color: "FFCC00"
             T-OWL:
                 route_color: 
-            Powell-Mason:
-                route_color: "#49ADA5"
+            POWELL-MASON:
+                route_color: "49ADA5"
             Powell-Hyde:
-                route_color: "#49ADA5"
+                route_color: "49ADA5"
             CALIFORNIA:
-                route_color: "#49ADA5"
+                route_color: "49ADA5"
