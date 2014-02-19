@@ -32,6 +32,10 @@ class FusionTables
 
     Profiler.save("Feature #{feature_name} - #{geojson['features'].length} rows")
 
+    if feature_name == 'shapes'
+      shapes_color = GTFS::getShapesConfig()
+    end
+
     ft_rows = []
     geojson['features'].each do |f|
       if feature_name == 'shapes'
@@ -40,9 +44,19 @@ class FusionTables
           kml_coordinates.push("#{f_coords[0]},#{f_coords[1]},0")
         end
 
+        shape_id = f['properties']['shape_id']
+        shape_config = shapes_color.find{ |s| s['shape_id'] == shape_id}
+
+        if shape_config.nil?
+          next
+        end
+
+        bg_color = shape_config['route_color'].to_s == '' ? '#FF0000' : shape_config['route_color']
+
         ft_row = {
-          'shape_id' => f['properties']['shape_id'],
-          'geometry' => '<LineString><coordinates>' + kml_coordinates.join(' ') + '</coordinates></LineString>'
+          'shape_id' => shape_id,
+          'bg_color' => bg_color,
+          'geometry' => '<LineString><coordinates>' + kml_coordinates.join(' ') + '</coordinates></LineString>',
         }
         ft_rows.push(ft_row)
       end
@@ -87,6 +101,7 @@ class FusionTables
         'shapes' => [
           {:name => 'shape_id',   :type => 'string'},  
           {:name => 'geometry',   :type => 'location'},
+          {:name => 'bg_color',   :type => 'string'},
         ],
         'stops' => [
           {:name => 'stop_id',    :type => 'string'},  
