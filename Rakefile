@@ -491,9 +491,7 @@ namespace :project do
     map_js_config_file = "#{PATH_TO_APP_TRANSIT_MAP}/static/js/config.js"
     map_js_config = JSON.parse(File.open(map_js_config_file, "r").read)
 
-    if map_js_config["routes"].nil?
-      map_js_config["routes"] = {}
-    end
+    map_js_config["routes"] = {}
 
     if PATH_TO_SCRIPT_ROUTE_ICON
       sh_line = "rm -f #{PATH_TO_APP_TRANSIT_MAP}/static/images/route_icons/*.png"
@@ -525,15 +523,16 @@ namespace :project do
           end
         end
       end
-      
-      if map_js_config["routes"][route_key].nil?
-        map_js_config["routes"][route_key] = {
-          'icon'              => config_icon,
-          'route_short_name'  => route['route_short_name'],
-          'route_color'       => route['route_color'],
-          'route_text_color'  => route['route_text_color'],
-        }        
-      end
+
+      route_color = route['route_color'].to_s == '' ? '#0178BC' : '#' + route['route_color']
+      route_text_color = route['route_text_color'].to_s == '' ? '#FFFFFF' : '#' + route['route_text_color']
+
+      map_js_config["routes"][route_key] = {
+        'icon'              => config_icon,
+        'route_short_name'  => route['route_short_name'],
+        'route_color'       => route_color,
+        'route_text_color'  => route_text_color,
+      } 
     end
 
     File.open(map_js_config_file, "w") {|f| f.write(JSON.pretty_generate(map_js_config)) }
