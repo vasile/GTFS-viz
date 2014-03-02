@@ -277,30 +277,31 @@ class GTFS
 
     self.db_init
 
-    config[PROJECT_NAME].keys.each do |table_name|
-      table_pk = config[PROJECT_NAME][table_name]['field_unique']
-      table_field = config[PROJECT_NAME][table_name]['field_filter']
-      rows = config[PROJECT_NAME][table_name]['values']
+    config[PROJECT_NAME].each do |config_group|
+      config_group.keys.each do |table_name|
+        table_field = config_group[table_name]['field_filter']
+        rows = config_group[table_name]['values']
 
-      rows.keys.each do |field_value|
-        set_items = []
+        rows.keys.each do |field_value|
+          set_items = []
 
-        fields_to_update = rows[field_value]
-        fields_to_update.keys.each do |column_name|
-          column_value = fields_to_update[column_name]
-          if column_value.nil?
+          fields_to_update = rows[field_value]
+          fields_to_update.keys.each do |column_name|
+            column_value = fields_to_update[column_name]
+            if column_value.nil?
+              next
+            end
+
+            set_items.push("#{column_name} = '#{column_value}'")
+          end
+
+          if set_items.length == 0
             next
           end
 
-          set_items.push("#{column_name} = '#{column_value}'")
+          sql = "UPDATE #{table_name} SET #{set_items.join(', ')} WHERE #{table_field} = '#{field_value}'"
+          @db.execute(sql)
         end
-
-        if set_items.length == 0
-          next
-        end
-
-        sql = "UPDATE #{table_name} SET #{set_items.join(', ')} WHERE #{table_field} = '#{field_value}'"
-        @db.execute(sql)
       end
     end
   end
