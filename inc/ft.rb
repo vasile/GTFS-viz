@@ -71,9 +71,11 @@ class FusionTables
       end
     end
 
-    rows_k = 0
+    if ft_table.count > 0
+      ft_table.truncate!
+    end
 
-    ft_table.truncate!
+    rows_k = 0
     ft_rows.each_slice(100).each do |ft_rows_bunch|
       ft_table.insert(ft_rows_bunch)
       rows_k += ft_rows_bunch.length
