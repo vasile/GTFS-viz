@@ -74,6 +74,12 @@ class GTFS
             row['arrival_time'] = hms_shift(row['arrival_time'], -5)
           end
         end
+
+        if table_name == 'stops'
+          if row['stop_lat'].to_i == 0 && row['stop_lon'].to_i == 0
+            next
+          end
+        end
         
         table_columns.each do |column|
           value = row[column]
