@@ -497,8 +497,8 @@ namespace :project do
     center_x = sum_x / geojson['features'].length
     center_y = sum_y / geojson['features'].length
 
-    map_js_config["center.x"] = center_x.round(6)
-    map_js_config["center.y"] = center_y.round(6)
+    map_js_config["center.x"] = center_x.round(2)
+    map_js_config["center.y"] = center_y.round(2)
 
     File.open(map_js_config_file, "w") {|f| f.write(JSON.pretty_generate(map_js_config)) }
   end
