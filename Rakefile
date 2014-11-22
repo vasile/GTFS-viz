@@ -522,12 +522,12 @@ namespace :project do
         config_icon = project_icon_rel_path
       else
         if PATH_TO_SCRIPT_ROUTE_ICON
-          sh_line = "php #{PATH_TO_SCRIPT_ROUTE_ICON}/route_icon.php bg=#{route['route_color']} fg=#{route['route_text_color']} t=#{route_key}"
+          sh_line = "php #{PATH_TO_SCRIPT_ROUTE_ICON}/route_icon.php bg=#{route['route_color']} fg=#{route['route_text_color']} t=\"#{route_key}\""
           sh(sh_line)
 
           tmp_file = "#{PATH_TO_SCRIPT_ROUTE_ICON}/tmp/route_icon_#{route_key}.png"
           if File.exists? tmp_file
-            sh("mv #{tmp_file} #{project_icon_abs_path}")
+            sh("mv \"#{tmp_file}\" \"#{project_icon_abs_path}\"")
             config_icon = project_icon_rel_path
           end
         end
