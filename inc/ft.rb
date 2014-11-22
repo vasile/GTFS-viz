@@ -45,11 +45,12 @@ class FusionTables
         end
 
         shape_id = f['properties']['shape_id']
-        shape_config = shapes_color.find{ |s| s['shape_id'] == shape_id}
 
-        if shape_config.nil?
+        if shapes_color[shape_id].nil?
           next
         end
+
+        shape_config = shapes_color[shape_id]
 
         bg_color = shape_config['route_color'].to_s == '' ? 'FF0000' : shape_config['route_color']
 

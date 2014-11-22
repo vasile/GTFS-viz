@@ -95,12 +95,9 @@ class GTFS
     @db.commit
   end
 
-  def self.shapes_to_geojson(headers, lines, json, main_args)
-    if json.nil?
-      json = {
-        "type" => "FeatureCollection",
-        "features" => []
-      }
+  def self.shapes_to_geojson(headers, lines, features, main_args)
+    if features.nil?
+      features = {}
     end
 
     shapes_color = GTFS::getShapesConfig()
@@ -116,15 +113,14 @@ class GTFS
         next
       end
 
-      shape_in_db = shapes_color.find{|s| s['shape_id'] == shape_id} 
-      if shape_in_db.nil?
+      if shapes_color[shape_id].nil?
         shapes_not_found.push(shape_id)
+        print "Shape_id #{shape_id} not used in trips.txt !\n"
         next
       end
 
-      f_found = json['features'].find{|f| f['properties']['shape_id'] == shape_id}
-      if f_found.nil?
-        f_found = {
+      if features[shape_id].nil?
+        features[shape_id] = {
           'type' => 'Feature',
           'properties' => {
             'shape_id' => shape_id,
@@ -134,14 +130,12 @@ class GTFS
             'coordinates' => []
           }
         }
-
-        json['features'].push(f_found)
       end
 
-      f_found['geometry']['coordinates'].push([row['shape_pt_lon'].to_f, row['shape_pt_lat'].to_f])    
+      features[shape_id]['geometry']['coordinates'].push([row['shape_pt_lon'].to_f, row['shape_pt_lat'].to_f])    
     end
 
-    return json
+    return features
   end
 
   def self.stops_to_geojson(headers, lines, json, main_args)
@@ -211,7 +205,7 @@ class GTFS
   def self.create_shapes_from_stops
     self.db_init
     
-    trips = []
+    trips = {}
     shape_id = 1
     
     sql = 'SELECT trip_id FROM trips'
@@ -226,9 +220,8 @@ class GTFS
       end
 
       trip_signature = stop_ids.join('_')
-      trip_found = trips.find{|t| t['signature'] == trip_signature}
-      if trip_found
-      else
+      
+      if trips[trip_signature].nil?
         shape_points = []
         db_stops.each do |row|
           shape_points.push({
@@ -236,23 +229,21 @@ class GTFS
             'y' => row['stop_lat'].to_f.round(6),
           })
         end
-        
-        trip_found = {
+
+        trips[trip_signature] = {
           'signature' => trip_signature,
           'shape_id' => shape_id.to_s,
           'shape_points' => shape_points
         }
         
         shape_id += 1
-        
-        trips.push(trip_found)
       end
       
       sql = 'UPDATE trips SET shape_id = ? WHERE trip_id = ?'
-      @db.execute(sql, trip_found['shape_id'], trip_row['trip_id'])
+      @db.execute(sql, trips[trip_signature]['shape_id'], trip_row['trip_id'])
     end
-    
-    return trips
+
+    return trips.values
   end
 
   def self.getRoutesConfig
@@ -268,9 +259,16 @@ class GTFS
       return @shapes_config
     end
 
+    @shapes_config = {}
+
     self.db_init
     sql = 'SELECT DISTINCT shape_id, trips.route_id, route_color,route_text_color FROM trips, routes WHERE trips.route_id = routes.route_id'
-    @shapes_config = @db.execute(sql)
+    
+    rows = @db.execute(sql)
+    rows.each do |row|
+      @shapes_config[row['shape_id']] = row
+    end
+
     return @shapes_config
   end
 

@@ -103,7 +103,14 @@ namespace :parse do
 
       Profiler.save('DONE custom shapes.txt')
     end
-    geojson = GTFS.parse_file(gtfs_file, 'shapes_to_geojson')
+
+    features = GTFS.parse_file(gtfs_file, 'shapes_to_geojson')
+
+    geojson = {
+      "type" => "FeatureCollection",
+      "features" => features.values
+    }
+
     File.open("#{TMP_PATH}/gtfs_shapes.geojson", "w") {|f| f.write(JSON.pretty_generate(geojson)) }
     Profiler.save('DONE shapes_2_geojson')
   end
@@ -132,11 +139,15 @@ namespace :parse do
     db.results_as_hash = true
 
     shapes_json = JSON.parse(File.open("#{TMP_PATH}/gtfs_shapes.geojson", "r").read)
+    features = {}
+    shapes_json['features'].each do |feature|
+      features[feature['properties']['shape_id']] = feature
+    end
 
     debug_shape_id = nil
     # debug_shape_id = '110255'
 
-    trips = []
+    trips = {}
 
     sql = 'SELECT trip_id, shape_id FROM trips'
     if debug_shape_id
@@ -153,25 +164,23 @@ namespace :parse do
       end
 
       trip_signature = stop_ids.join('_')
-      trip_found = trips.find{|t| t['signature'] == trip_signature}
-      if trip_found.nil?
-        trip_found = {
+      if trips[trip_signature].nil?
+        trips[trip_signature] = {
           'signature' => trip_signature,
           'shape_id' => trip_row['shape_id'],
           'stations' => [],
         }
-        trips.push(trip_found)
       else
         next
       end
 
       if trip_row['shape_id'].nil?
         print "ERROR: Empty shape_id for#{trip_row} !\n"
-        trip_found['ok'] = false
+        trips[trip_signature]['ok'] = false
         next
       end
 
-      shape_coords = shapes_json['features'].find{ |f| f['properties']['shape_id'] == trip_row['shape_id'] }
+      shape_coords = features[trip_row['shape_id']]
 
       if debug_shape_id
         print "DEBUG\n"
@@ -283,7 +292,7 @@ namespace :parse do
 
         shape_percent = ((p_d_total.to_f / d_shape.to_f) * 100).round(2)
 
-        trip_found['stations'].push({
+        trips[trip_signature]['stations'].push({
           'stop_id' => row['stop_id'],
           'shape_percent' => shape_percent,
         })
@@ -294,10 +303,10 @@ namespace :parse do
       end
       # END LOOP: Trip Stations
       
-      trip_found['ok'] = trip_ok
+      trips[trip_signature]['ok'] = trip_ok
     end
     # END LOOP: Trips
-    
+
     File.open("#{TMP_PATH}/trips_shapes.json", "w") {|f| f.write(JSON.pretty_generate(trips)) }
     Profiler.save('DONE stops_interpolate')
   end
@@ -335,7 +344,7 @@ namespace :parse do
 
         trip_signature = stop_ids.join('_')
 
-        json_trip = json_trips.find{|t| t['signature'] == trip_signature}
+        json_trip = json_trips[trip_signature]
         if json_trip['ok'] == false
           sql = 'UPDATE trips SET trip_ok = 0 WHERE trip_id = ?'
           db.execute(sql, trip_row['trip_id'])
