@@ -378,6 +378,17 @@ namespace :parse do
 
     Profiler.save('DONE stops_trips_update')
   end
+
+  desc "PARSE: ALL tasks"
+  task :all do
+    Rake::Task["setup:init"].invoke
+    Rake::Task["parse:gtfs_2_sqlite"].invoke
+    Rake::Task["parse:shapes_2_geojson"].invoke
+    Rake::Task["parse:stops_2_geojson"].invoke
+    Rake::Task["parse:gtfs_2_kml"].invoke
+    Rake::Task["parse:stops_interpolate"].invoke
+    Rake::Task["parse:stops_trips_update"].invoke
+  end
 end
 
 namespace :project do
