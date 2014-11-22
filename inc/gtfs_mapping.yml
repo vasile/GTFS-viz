@@ -11,6 +11,12 @@ tables:
             - sunday
             - start_date
             - end_date
+    calendar_dates:
+        is_optional: yes
+        table_columns:
+            - service_id
+            - date
+            - exception_type
     routes:
         table_columns:
             - route_id
