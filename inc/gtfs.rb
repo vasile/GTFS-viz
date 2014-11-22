@@ -100,7 +100,7 @@ class GTFS
       features = {}
     end
 
-    shapes_color = GTFS::getShapesConfig()
+    shapes_color = self::getShapesConfig()
 
     shapes_not_found = []
 
