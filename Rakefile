@@ -86,6 +86,8 @@ namespace :parse do
   desc "PARSE: GTFS shapes.txt file to GeoJSON"
   task :shapes_2_geojson do
     gtfs_file = "#{GTFS_FOLDER}/shapes.txt"
+    Profiler.init("START GTFS shapes.txt conversion to GeoJSON, #{GTFS.gtfs_file_count_lines(gtfs_file)} lines")
+    
     if (File.exists? gtfs_file) == false
       print "Missing shapes.txt file, create one from stops.txt\n"
       trips = GTFS.create_shapes_from_stops
@@ -98,9 +100,9 @@ namespace :parse do
           end
         end
       end
+
+      Profiler.save('DONE custom shapes.txt')
     end
-    
-    Profiler.init("START GTFS shapes.txt conversion to GeoJSON, #{GTFS.gtfs_file_count_lines(gtfs_file)} lines")
     geojson = GTFS.parse_file(gtfs_file, 'shapes_to_geojson')
     File.open("#{TMP_PATH}/gtfs_shapes.geojson", "w") {|f| f.write(JSON.pretty_generate(geojson)) }
     Profiler.save('DONE shapes_2_geojson')
