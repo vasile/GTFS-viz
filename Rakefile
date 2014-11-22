@@ -1,3 +1,5 @@
+Encoding.default_external = "UTF-8"
+
 require 'json'
 require 'csv'
 require 'yaml'
