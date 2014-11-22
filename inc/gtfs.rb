@@ -1,18 +1,19 @@
 class GTFS
   @db = nil
   
-  def self.init
-    self.db_init
-    sql = File.open("#{GTFS_SQL_PATH}/gtfs_init.sql", "r").read
-    @db.execute_batch(sql)
-  end
-  
   def self.db_init
     if @db
       return
     end
-    
-    @db = SQLite3::Database.new(GTFS_DB_PATH)
+
+    if File.file? GTFS_DB_PATH
+      @db = SQLite3::Database.open(GTFS_DB_PATH)
+    else
+      @db = SQLite3::Database.new(GTFS_DB_PATH)
+      sql = File.open("#{GTFS_SQL_PATH}/gtfs_init.sql", "r").read
+      @db.execute_batch(sql)
+    end
+
     @db.results_as_hash = true
   end
 
@@ -55,13 +56,12 @@ class GTFS
   end
   
   def self.gtfs_to_sqlite(headers, lines, json, main_args)
-    db = main_args["db"]
     table_name = main_args['table_name']
     table_columns = main_args['table_config']['table_columns']
 
     # More SQLite improvements here
     # http://stackoverflow.com/questions/1711631/how-do-i-improve-the-performance-of-sqlite
-    db.transaction
+    @db.transaction
       CSV.parse(lines.join).each do |line|
         row = self.csv_line_to_row(headers, line)
 
@@ -90,9 +90,9 @@ class GTFS
         end
         
         sql = "INSERT INTO #{table_name} (#{table_columns.join(', ')}) VALUES (#{(["?"] * table_columns.length).join(', ')})"
-        db.execute(sql, row_values)
+        @db.execute(sql, row_values)
       end
-    db.commit
+    @db.commit
   end
 
   def self.shapes_to_geojson(headers, lines, json, main_args)

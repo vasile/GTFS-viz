@@ -51,8 +51,6 @@ namespace :setup do
   task :init do
     sh "rm -rf #{TMP_PATH}"
     sh "mkdir -p #{TMP_PATH}"
-
-    GTFS.init
   end
 end
 
@@ -62,9 +60,7 @@ namespace :parse do
     Profiler.init('START SQL inserts from GTFS files')
 
     sh "rm -f #{GTFS_DB_PATH}"
-    GTFS.init
-
-    db = SQLite3::Database.open(GTFS_DB_PATH)
+    GTFS.db_init
 
     config = YAML.load(File.open("#{Dir.pwd}/inc/gtfs_mapping.yml"))
     config['tables'].each do |table_name, table_config|
@@ -76,7 +72,7 @@ namespace :parse do
       end
 
       Profiler.save("SQL INSERT #{table_name}, #{GTFS.gtfs_file_count_lines(gtfs_file)} records")
-      GTFS.parse_file(gtfs_file, 'gtfs_to_sqlite', {"db" => db, "table_name" => table_name, "table_config" => table_config})
+      GTFS.parse_file(gtfs_file, 'gtfs_to_sqlite', {"table_name" => table_name, "table_config" => table_config})
     end
 
     Profiler.save("DONE SQL INSERTs")
