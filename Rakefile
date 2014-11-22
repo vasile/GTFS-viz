@@ -408,11 +408,13 @@ namespace :project do
     end
 
     API_FOLDER = "#{PATH_TO_APP_TRANSIT_MAP}/api"
-
-    API_GTFS_FOLDER = "#{API_FOLDER}/gtfs-data"
-    sh "rm -rf #{API_GTFS_FOLDER} && mkdir #{API_GTFS_FOLDER}"
-    ["gtfs.db", "gtfs_shapes.geojson", "gtfs_stops.geojson"].each do |project_file|
-      sh "cp #{TMP_PATH}/#{project_file} #{API_GTFS_FOLDER}/#{project_file}"
+    
+    sh "rm -rf #{API_FOLDER}/geojson/*"
+    sh "rm -rf #{API_FOLDER}/gtfs-data"
+    sh "mkdir #{API_FOLDER}/gtfs-data"
+    sh "cp #{TMP_PATH}/gtfs.db #{API_FOLDER}/gtfs-data/gtfs.db"
+    ["gtfs_shapes.geojson", "gtfs_stops.geojson"].each do |project_file|
+      sh "cp #{TMP_PATH}/#{project_file} #{API_FOLDER}/geojson/#{project_file}"
     end
     
     API_TMP_FOLDER = "#{API_FOLDER}/tmp"
