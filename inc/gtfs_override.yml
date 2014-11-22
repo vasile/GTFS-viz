@@ -3,7 +3,11 @@ sfmta:
         routes:
             field_filter: route_short_name
             values:
+                California:
+                    route_short_name: "CA"
                 POWELL-MASON:
+                    route_short_name: "PM"
+                Powell-Mason:
                     route_short_name: "PM"
                 Powell-Hyde:
                     route_short_name: "PH"
@@ -145,6 +149,8 @@ sfmta:
                     route_color: 
                 108:
                     route_color: "F187A8"
+                CA:
+                    route_color: "49ADA5"
                 F:
                     route_color: "E68382"
                 J:
