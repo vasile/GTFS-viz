@@ -4,3 +4,5 @@ gtfs-data/*/*.txt
 tmp
 
 ft_login.rb
+
+Gemfile.lock
