@@ -9,7 +9,7 @@ The script was tested on OSX machines with Ruby 1.9.x
 - clone / download the copy of the repo on your machine
 - install required Ruby Gems
 
-    	(sudo) gem install json sqlite3 fusion_tables rake
+`(sudo) bundle install`
 
 ## Setup
 
