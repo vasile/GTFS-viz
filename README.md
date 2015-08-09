@@ -9,7 +9,7 @@ The script was tested on OSX machines with Ruby 1.9.x
 - clone / download the copy of the repo on your machine
 - install required Ruby Gems
 
-`(sudo) bundle install`
+`bundle install`
 
 ## Setup
 
