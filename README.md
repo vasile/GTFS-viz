@@ -2,7 +2,7 @@
 
 This Ruby script is used to convert a set of [GTFS](https://developers.google.com/transit/gtfs/reference) files into a SQLite database + GeoJSONs needed by the [Transit Map](https://github.com/vasile/transit-map) web application that animates vehicles on a map based on timetables and network.
 
-The script was tested on OSX machines with Ruby 1.9.x
+The script was tested on OSX machines with Ruby 2.x
 
 ## Install
 
