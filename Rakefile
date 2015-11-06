@@ -16,6 +16,10 @@ PATH_TO_APP_TRANSIT_MAP = nil
 # Path of the repo cloned/downloaded from https://github.com/vasile/transit-map-route-icon
 PATH_TO_SCRIPT_ROUTE_ICON = nil
 
+# From GoogleDevs Console and has following format 
+#   complicated_string@developer.gserviceaccount.com
+API_CONSOLE_EMAIL_ADDRESS = nil
+
 if Rake.application.options.show_tasks
   print "=======================\n"
   print "Project: #{PROJECT_NAME}\n"
@@ -45,6 +49,7 @@ TMP_PATH = "#{Dir.pwd}/tmp/#{PROJECT_NAME}"
 GTFS_DB_PATH = "#{TMP_PATH}/gtfs.db"
 GTFS_SQL_PATH = "#{Dir.pwd}/inc/sql"
 KML_TEMPLATES = "#{Dir.pwd}/inc/templates"
+APP_INC_PATH = "#{Dir.pwd}/inc"
 
 namespace :setup do
   desc "SETUP: init"
@@ -428,12 +433,9 @@ namespace :project do
 
   desc "PROJECT: push to Fusion Tables (require Google account)"
   task :deploy_fusiontables do
-    require 'fusion_tables'
     Profiler.init('START Fusion Tables INSERTs')
-    
-    ["shapes", "stops"].each do |feature_name|
-      FusionTables.update(feature_name)
-    end
+
+    FT_Export.topology_export
 
     Profiler.save('DONE Fusion Tables INSERTs')
   end
@@ -460,14 +462,9 @@ namespace :project do
     map_js_config['ft_layer_ids.topology_edges'] = nil
     map_js_config['ft_layer_ids.topology_stations'] = nil
     
-    if FT_USERNAME == 'Google_Drive_Username'
-      print "NOTICE - rake project:update_settings_ft task need a valid FT_USERNAME\n"
-    else
-      require 'fusion_tables'
-      ["shapes", "stops"].each do |feature_name|
-        ft_table = FusionTables.getTable(feature_name)
-        map_js_config["ft_layer_ids.gtfs_#{feature_name}"] = ft_table.id
-      end
+    ["shapes", "stops"].each do |feature_name|
+      table_id = FT_Export.table_id(feature_name)
+      map_js_config["ft_layer_ids.gtfs_#{feature_name}"] = table_id
     end
 
     File.open(map_js_config_file, "w") {|f| f.write(JSON.pretty_generate(map_js_config)) }

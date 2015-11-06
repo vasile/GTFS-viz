@@ -1,0 +1,33 @@
+{
+ "kind": "fusiontables#table",
+ "name": "gtfs_TEMPLATE_shapes",
+ "columns": [
+  {
+   "kind": "fusiontables#column",
+   "columnId": 0,
+   "name": "shape_id",
+   "type": "STRING",
+   "formatPattern": "NONE",
+   "validateData": false
+  },
+  {
+   "kind": "fusiontables#column",
+   "columnId": 1,
+   "name": "geometry",
+   "type": "LOCATION",
+   "formatPattern": "NONE",
+   "validateData": false
+  },
+  {
+   "kind": "fusiontables#column",
+   "columnId": 2,
+   "name": "bg_color",
+   "type": "STRING",
+   "formatPattern": "NONE",
+   "validateData": false
+  }
+ ],
+ "description": "Used by https://github.com/vasile/GTFS-viz",
+ "isExportable": true,
+ "attributionLink": "https://github.com/vasile/GTFS-viz"
+}

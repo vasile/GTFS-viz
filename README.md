@@ -60,25 +60,38 @@ If you want to create an animation of the GTFS data you will need to
 
 - download / clone the [Transit Map](https://github.com/vasile/transit-map) web application
 - download / clone the [Transit Map Route Icon](https://github.com/vasile/transit-map-route-icon) PHP script
-- edit Rakefile and change the PATH_TO_APP_TRANSIT_SIMULATOR, PATH_TO_SCRIPT_ROUTE_ICON constants
+- edit Rakefile and change the `PATH_TO_APP_TRANSIT_SIMULATOR`, PATH_TO_SCRIPT_ROUTE_ICON constants
 
-In a terminal window run the following Rake tasks:
+## Setup Fusion Tables API
+
+- create a project under [API Console](https://console.developers.google.com/)
+- enable `Drive API` and `Fusion Tables API` under APIs - [screenshot](http://take.ms/eBNt6)
+- add a new Credential as `Service Account` and select `P12` as key type - [screenshot](http://take.ms/MrlKz)
+- save the key as `client.p12` under `inc/fusion_tables/client.p12`
+- copy the email address which is `complicated_string@developer.gserviceaccount.com` and assign it to `API_CONSOLE_EMAIL_ADDRESS` inside `Rakefile` - [screenshot](http://take.ms/bHy2f)
+
+## Update Transit-Map project
+
+- Download / clone the [Transit Map](https://github.com/vasile/transit-map) web application
+
+- Edit Rakefile and change the `PATH_TO_APP_TRANSIT_SIMULATOR`
+
+- In a terminal window run the following Rake tasks:
 	
-	# Populate FusionTables with shapes.txt and stops.txt
-	# This task requires configuration of the FT user/pass/key in ./inc/ft_login.rb
-	rake project:deploy_fusiontables
+		# Populate FusionTables with shapes.txt and stops.txt
+		rake project:deploy_fusiontables
   	
-	# Copy the files needed by the Transit Map web application
-	rake project:deploy
+		# Copy the files needed by the Transit Map web application
+		rake project:deploy
   
 Now, you should be able to see some action in your browser :)
 
 ![Swiss railways(SBB)](https://raw.github.com/vasile/transit-map/master/static/images/github_badge_800px.png "Swiss railways(SBB)")
-SBB network - http://simcity.vasile.ch/sbb/
+Check SBB network - http://maps.vasile.ch/transit-sbb/
   
 ## License
 
-**Copyright (c) 2014 Vasile Coțovanu** - http://www.vasile.ch
+**Copyright (c) 2014-2015 Vasile Coțovanu** - http://www.vasile.ch
  
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the **following conditions:**
  

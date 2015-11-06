@@ -3,6 +3,6 @@
 gtfs-data/*/*.txt
 tmp
 
-ft_login.rb
+client.p12
 
 Gemfile.lock

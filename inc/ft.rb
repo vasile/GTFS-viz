@@ -1,177 +1,268 @@
-class FusionTables
-  def self.init
-    if @ft.nil?
-      @ft = GData::Client::FusionTables.new
-      if FT_USERNAME == 'Google_Drive_Username'
-        print "Invalid FT_USERNAME, check inc/ft_login.rb\n"
-        print "ABORT\n"
-        exit
-      end
-      @ft.clientlogin(FT_USERNAME, FT_PASSWORD)
-      @ft.set_api_key(FT_KEY)
-    end
-  end
+require 'csv'
+require 'json'
+require 'google/api_client'
 
-  def self.find_table(ft_table_name)
-    ft_table = nil
-    @ft.show_tables.each do |table|
-      if table.name == ft_table_name
-        ft_table = table
-        break
-      end
+class FT_Export
+  @debug = false
+  @debug_client = false
+  
+  @client_issuer = API_CONSOLE_EMAIL_ADDRESS
+
+  @client = nil
+  @api_drive = nil
+  @api_ft = nil
+
+  def self.init
+    if @client
+      return
+    end
+
+    @client = Google::APIClient.new(:application_name => "Simcity", :application_version => "1.0")
+    if @debug_client
+      @client.logger.level = Logger::DEBUG
+    end
+
+    if @client_issuer.nil?
+      print "ERROR: Fusion Tables setup is not done, missing @client_issuer"
+      exit      
+    end
+
+    client_key_path = "#{APP_INC_PATH}/fusion_tables/client.p12"
+    if !(File.exists? client_key_path)
+      print "ERROR: Fusion Tables setup is not done, missing client.p12 file"
+      exit
     end
     
-    return ft_table
+    key = Google::APIClient::KeyUtils.load_from_pkcs12(client_key_path, 'notasecret')
+    @client.authorization = Signet::OAuth2::Client.new(
+      :token_credential_uri => 'https://accounts.google.com/o/oauth2/token',
+      :audience => 'https://accounts.google.com/o/oauth2/token',
+      :scope => ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/fusiontables'],
+      :issuer => @client_issuer,
+      :signing_key => key,
+    )
+    @client.authorization.fetch_access_token!
+
+    @api_drive = @client.discovered_api('drive', 'v2')
+    @api_ft = @client.discovered_api('fusiontables', 'v2')
   end
-  
-  def self.update(feature_name)
-    ft_table = self.getTable(feature_name)
 
-    geojson_file = "#{TMP_PATH}/gtfs_#{feature_name}.geojson"
-    geojson = JSON.parse(File.open(geojson_file, "r").read)
+  def self.topology_export
+    self.init
+    
+    ['shapes', 'stops'].each do |feature_name|
+      self.table_export(feature_name)
+    end
+  end
 
-    Profiler.save("Feature #{feature_name} - #{geojson['features'].length} rows")
+  def self.table_export(feature_name)
+    google_drive_filename = self.drive_filename(feature_name)
+
+    ft_table = nil
+
+    if @debug
+      print "Listing DRIVE documents for of #{@client_issuer}\n"
+    end
+
+    drive_api_result = @client.execute(
+      :api_method => @api_drive.files.list
+    )
+    drive_api_result.data.items.each do |f|
+      if @debug
+        print "   #{f['title']} (#{f['id']})\n"
+      end
+      if f['title'] == google_drive_filename
+        ft_table = f
+      end
+    end
+
+    ft_table = nil
+
+    if ft_table
+      tableId = ft_table['id']
+    else
+      json = JSON.parse(File.open("#{APP_INC_PATH}/fusion_tables/table_def_#{feature_name}.json", "r").read)
+      json['name'] = google_drive_filename
+
+      api_result = @client.execute(
+        :api_method => @api_ft.table.insert,
+        :body_object => json
+      )
+
+      ft_table = JSON.parse(api_result.body)
+      tableId = ft_table['tableId']
+
+      print "CREATED #{google_drive_filename}\n"
+    end
+
+    if feature_name == 'shapes'
+      api_result = @client.execute(
+        :api_method => @api_ft.style.list,
+        :parameters => { 
+          'tableId' => tableId,
+        },
+      )
+      if api_result.data.items.count == 0
+        json = JSON.parse(File.open("#{APP_INC_PATH}/fusion_tables/ft_styler.json", "r").read)
+        api_result = @client.execute(
+          :api_method => @api_ft.style.insert,
+          :parameters => { 
+            'tableId' => tableId,
+          },
+          :body_object => json
+        )
+      end
+    end
+
+    table_url = "https://www.google.com/fusiontables/DataSource?docid=#{tableId}"
+    print "#{feature_name} URL: #{table_url}\n"
+
+    api_result = @client.execute(
+      :api_method => @api_drive.permissions.list,
+      :parameters => {
+        'fileId' => tableId
+      }
+    )
+
+    if @debug
+      print "Listing DRIVE permissions for #{table_url}\n"
+    end
+
+    anyone_has_access = false
+    api_result.data.items.each do |item|
+      name = item['id'] == 'anyone' ? 'ANYONE' : item['name']
+      if @debug
+        print " - user: #{name}, role #{item['role']}\n"
+      end
+      
+      if item['role'] == 'reader' && item['type'] == 'anyone'
+        anyone_has_access = true
+      end
+    end
+
+    if !anyone_has_access
+      self.insert_permission(tableId, 'anyone', 'anyone', 'reader')
+    end
+
+    csv_data = self.geojson2csv(feature_name)
+
+    api_result = @client.execute(
+      :api_method => @api_ft.table.replace_rows,
+      :parameters => { 
+        'tableId' => tableId,
+        'uploadType' => 'media',
+      },
+      :body => csv_data
+    )
+
+    # Clean up mess - the previous operation creates 'Copy of' tables, lets delete them
+    drive_api_result = @client.execute(
+      :api_method => @api_drive.files.list
+    )
+    drive_api_result.data.items.each do |f|
+      if f['title'] == "Copy of #{google_drive_filename}"
+        api_result = @client.execute(
+          :api_method => @api_drive.files.delete,
+          :parameters => {
+            'fileId' => f['id']
+          }
+        )
+      end
+    end
+  end
+
+  def self.geojson2csv(feature_name)
+    geojson_path = "#{TMP_PATH}/gtfs_#{feature_name}.geojson"
+    json = JSON.parse(File.open(geojson_path, 'r').read)
+    csv_path = self.csv_file_path(feature_name)
+
+    Profiler.save("Feature #{feature_name} - #{json['features'].length} rows")
 
     if feature_name == 'shapes'
       shapes_color = GTFS::getShapesConfig()
+      kml_linestring_template = IO.read("#{APP_INC_PATH}/templates/kml_linestring.xml")
     end
 
-    ft_rows = []
-    geojson['features'].each do |f|
-      if feature_name == 'shapes'
-        kml_coordinates = []
-        f['geometry']['coordinates'].each do |f_coords|
-          kml_coordinates.push("#{f_coords[0]},#{f_coords[1]},0")
+    CSV.open(csv_path, 'w') do |csv|
+      json['features'].each do |f|
+        csv_values = []
+        
+        if feature_name == 'stops'
+          f_coords = f['geometry']['coordinates']
+          csv_values = [
+            f['properties']['stop_id'], 
+            f['properties']['stop_name'], 
+            "#{f_coords[1]},#{f_coords[0]}"
+          ]
         end
-
-        shape_id = f['properties']['shape_id']
-
-        if shapes_color[shape_id].nil?
-          next
-        end
-
-        shape_config = shapes_color[shape_id]
-
-        bg_color = shape_config['route_color'].to_s == '' ? 'FF0000' : shape_config['route_color']
-
-        ft_row = {
-          'shape_id' => shape_id,
-          'bg_color' => "##{bg_color}",
-          'geometry' => '<LineString><coordinates>' + kml_coordinates.join(' ') + '</coordinates></LineString>',
-        }
-        ft_rows.push(ft_row)
-      end
-
-      if feature_name == 'stops'
-        ft_row = {
-          'stop_id' => f['properties']['stop_id'],
-          'stop_name' => f['properties']['stop_name'],
-          'geometry' => "#{f['geometry']['coordinates'][1]},#{f['geometry']['coordinates'][0]}"
-        }
-        ft_rows.push(ft_row)
-      end
-    end
-
-    if ft_table.count > 0
-      ft_table.truncate!
-    end
-
-    rows_k = 0
-    ft_rows.each_slice(100).each do |ft_rows_bunch|
-      ft_table.insert(ft_rows_bunch)
-      rows_k += ft_rows_bunch.length
-      Profiler.save("#{rows_k} rows")
-      
-      sleep(1)
-    end
-
-  end
-
-  def self.getTable(feature_name)
-    ft_table_name = "gtfs_#{PROJECT_NAME}_#{feature_name}"
-    ft_table_name.gsub!('-', '_')
-
-    if ft_table_name.match(/^[a-z0-9_]+?$/i).nil?
-      print "FT Client can handle only letters, numbers and underscores for table name.\n"
-      exit
-    end
-
-    self.init
-    
-    ft_table = self.find_table(ft_table_name)
-    if ft_table.nil?
-      column_definitions = {
-        'shapes' => [
-          {:name => 'shape_id',   :type => 'string'},  
-          {:name => 'geometry',   :type => 'location'},
-          {:name => 'bg_color',   :type => 'string'},
-        ],
-        'stops' => [
-          {:name => 'stop_id',    :type => 'string'},  
-          {:name => 'stop_name',  :type => 'string'},
-          {:name => 'geometry',   :type => 'location'},
-        ],
-      }
-
-      begin
-        ft_table = @ft.create_table(ft_table_name, column_definitions[feature_name])
-      rescue
-        # https://github.com/tokumine/fusion_tables/issues/19
-        ft_table = self.find_table(ft_table_name)
-      end
-
-      if feature_name == 'shapes'
-        self.updateTableStyles(ft_table.id)
-      end
-    end
-    
-    # TODO - make the table public - http://screencast.com/t/Wq275qo2
-    print "Make sure #{ft_table_name} it's shared to public . Open the link below > Share\n"
-    print "https://www.google.com/fusiontables/DataSource?docid=#{ft_table.id}\n"
-
-    return ft_table
-  end
-
-  def self.updateTableStyles(tableId)
-    def self.getFTClient(headers = {})
-      client = GData::Client::Base.new(
-        :clientlogin_service => 'fusiontables',
-        :headers => headers
-      )
-      client.clientlogin(FT_USERNAME, FT_PASSWORD)
-
-      return client
-    end
-
-    api_base_url = "https://www.googleapis.com/fusiontables/v1/tables"
-    api_table_styles_url = "#{api_base_url}/#{tableId}/styles?key=#{FT_KEY}"
-
-    client = self.getFTClient()
-    json_resp = JSON.parse(client.get(api_table_styles_url).body)
-
-    # Delete current styles
-    if json_resp['totalItems'] > 0
-      json_resp['items'].each do |json_style|
-        begin
-          api_style_url = "#{api_base_url}/#{tableId}/styles/#{json_style['styleId']}?key=#{FT_KEY}"
-          client.delete(api_style_url)
-        rescue Exception => e
-          # In case of success, the HTTP status code returned is 204 - which confuses the client
-          # Catch other status codes
-          if e.response.status_code != 204
-            p e
-            exit
+        
+        if feature_name == 'shapes'
+          kml_line_coords = []
+          f['geometry']['coordinates'].each do |p|
+            kml_line_coords.push(p.join(','))
           end
+          kml_linestring = kml_linestring_template.sub('[coordinates]', kml_line_coords.join(" "))
+
+          shape_id = f['properties']['shape_id']
+          shape_config = shapes_color[shape_id]
+          bg_color = shape_config['route_color'].to_s == '' ? 'FF0000' : shape_config['route_color']
+
+          csv_values = [
+            shape_id,
+            kml_linestring,
+            "##{bg_color}"
+          ]
+        end
+
+        if csv_values.count > 0
+          csv << csv_values
         end
       end
     end
 
-    # Insert style
-    style_res = File.read("#{Dir.pwd}/inc/ft_styler.json")
+    return File.open(csv_path, "rb").read
+  end
 
-    client = self.getFTClient({
-        'Content-Type' => 'application/json'
+  def self.csv_file_path(feature_name)
+    return "#{TMP_PATH}/ft_#{feature_name}.csv"
+  end
+
+  def self.drive_filename(feature_name)
+    return "gtfs_#{PROJECT_NAME}_#{feature_name}"
+  end
+
+  def self.insert_permission(file_id, value, type, role)
+    if @debug
+      print "ADDING #{value} of type:#{type} and role:#{role}\n"
+    end
+
+    new_permission = @api_drive.permissions.insert.request_schema.new({
+      'value' => value,
+      'type' => type,
+      'role' => role,
     })
-    json_resp = client.post(api_table_styles_url, style_res)
+    result = @client.execute(
+      :api_method => @api_drive.permissions.insert,
+      :body_object => new_permission,
+      :parameters => { 
+        'fileId' => file_id 
+      }
+    )
+  end
+
+  def self.table_id(feature_name)
+    google_drive_filename = self.drive_filename(feature_name)
+    
+    self.init
+    drive_api_result = @client.execute(
+      :api_method => @api_drive.files.list
+    )
+    drive_api_result.data.items.each do |f|
+      if f['title'] == google_drive_filename
+        return f['id']
+      end
+    end
+
+    return nil
   end
 end
