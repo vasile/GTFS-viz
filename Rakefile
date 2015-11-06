@@ -47,8 +47,6 @@ import ft_login_path
 
 TMP_PATH = "#{Dir.pwd}/tmp/#{PROJECT_NAME}"
 GTFS_DB_PATH = "#{TMP_PATH}/gtfs.db"
-GTFS_SQL_PATH = "#{Dir.pwd}/inc/sql"
-KML_TEMPLATES = "#{Dir.pwd}/inc/templates"
 APP_INC_PATH = "#{Dir.pwd}/inc"
 
 namespace :setup do
