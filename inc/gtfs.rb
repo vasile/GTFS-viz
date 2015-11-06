@@ -262,7 +262,7 @@ class GTFS
     @shapes_config = {}
 
     self.db_init
-    sql = 'SELECT DISTINCT shape_id, trips.route_id, route_color,route_text_color FROM trips, routes WHERE trips.route_id = routes.route_id'
+    sql = 'SELECT DISTINCT shape_id, trips.route_id, route_color, route_text_color FROM trips, routes WHERE trips.route_id = routes.route_id'
     
     rows = @db.execute(sql)
     rows.each do |row|
