@@ -174,7 +174,7 @@ class GTFS
     
     kml_placemarks = []
     geojson['features'].each do |f|
-      kml_placemark = File.open("#{APP_INC_PATH}/inc/templates/kml_placemark_#{feature_name}.xml", "r").read
+      kml_placemark = File.open("#{APP_INC_PATH}/templates/kml_placemark_#{feature_name}.xml", "r").read
       f['properties'].each do |key, value|
         kml_placemark.gsub!("{#{key}}", value.nil? ? '' : value)
       end
@@ -195,7 +195,7 @@ class GTFS
       kml_placemarks.push(kml_placemark)
     end
     
-    kml_content = File.open("#{APP_INC_PATH}/inc/templates/kml_document.xml", "r").read
+    kml_content = File.open("#{APP_INC_PATH}/templates/kml_document.xml", "r").read
     kml_content.gsub!('{feature_name}', feature_name)
     kml_content.sub!('{placemarks}', kml_placemarks.join("\n"))
     
