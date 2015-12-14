@@ -199,7 +199,9 @@ class GTFS
     kml_content.gsub!('{feature_name}', feature_name)
     kml_content.sub!('{placemarks}', kml_placemarks.join("\n"))
     
-    File.open("#{TMP_PATH}/gtfs_#{feature_name}.kml", "w") {|f| f.write(kml_content) }
+    kml_path = "#{TMP_PATH}/gtfs_#{feature_name}.kml"
+    File.open(kml_path, "w") {|f| f.write(kml_content) }
+    print "Saving #{kml_path}\n"
   end
   
   def self.create_shapes_from_stops
