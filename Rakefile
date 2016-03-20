@@ -39,12 +39,6 @@ if !(File.exists? GTFS_FOLDER)
   exit
 end
 
-ft_login_path = "#{Dir.pwd}/inc/ft_login.rb"
-if (File.exists? ft_login_path) == false
-  sh "cp #{Dir.pwd}/inc/templates/ft_login.template.rb #{ft_login_path}"
-end
-import ft_login_path
-
 TMP_PATH = "#{Dir.pwd}/tmp/#{PROJECT_NAME}"
 GTFS_DB_PATH = "#{TMP_PATH}/gtfs.db"
 APP_INC_PATH = "#{Dir.pwd}/inc"
